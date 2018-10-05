@@ -197,11 +197,22 @@ namespace AzulAI
                 }
             }
 
-            //Reset turn availibility
-            movesAvailible = true;
+            //Test for edge case when no legal moves are possible at the start of the round
+            //movesAvailible = true;
             foreach(Player p in players)
             {
-                p.legalMovesAvailible = true;
+                List<Move> moveCheck = GenerateLegalMoves(p);
+                if(moveCheck.Count > 0)
+                {
+                    p.legalMovesAvailible = true;
+                    movesAvailible = true;
+                }
+            }
+
+            //If no player has legal moves, end the game
+            if(movesAvailible == false)
+            {
+                lastRound = true;
             }
 
             //Players take their turns until no legal moves remain
