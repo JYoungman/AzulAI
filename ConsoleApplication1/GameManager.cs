@@ -188,14 +188,13 @@ namespace AzulAI
                         int randIdx = randNumGen.Next(0, bag.Count);
                         f.tiles[i] = bag[randIdx];
                         bag.RemoveAt(randIdx);
+                        f.availible = true;
                     }
                     else
                     {
                         break;
                     }
                 }
-
-                f.availible = true;
             }
 
             //Reset turn availibility
@@ -274,8 +273,9 @@ namespace AzulAI
                 }
                 p.score += pointsEarned;
 
-                //Deduct penalties
+                //Deduct penalties, not going below zero
                 p.score -= p.penaltyAccruedThisRound;
+                p.score = Math.Max(p.score, 0);
                 p.penaltyAccruedThisRound = 0;
 
                 //Combo bonuses assigned on last round
