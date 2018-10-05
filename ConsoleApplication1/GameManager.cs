@@ -7,6 +7,7 @@ namespace AzulAI
     public class GameManager
     {
         List<Player> players;
+        Player startingPlayer;
 
         List<Tile> bag;
         List<Tile> box;
@@ -44,8 +45,10 @@ namespace AzulAI
 
             pool.Add(new Tile(TileColor.penalty));
 
-            //Generate Factories
             players = playerList;
+            startingPlayer = players[0];
+
+            //Generate Factories
             int factoryCount = 5;
             if (players.Count == 3)
                 factoryCount = 7;
@@ -197,8 +200,32 @@ namespace AzulAI
                 }
             }
 
+            //Update turn order
+            if(players[0] != startingPlayer)
+            {
+                int startingPlayerIdx = 0;
+                for(int i = 0; i < players.Count; i++)
+                {
+                    if(players[i] == startingPlayer)
+                    {
+                        startingPlayerIdx = i;
+                        break;
+                    }
+                }
+
+                List<Player> temp = players.GetRange(startingPlayerIdx, players.Count - startingPlayerIdx);
+                foreach(Player p in players)
+                {
+                    if(!temp.Contains(p))
+                    {
+                        temp.Add(p);
+                    }
+                }
+
+                players = temp;
+            }
+
             //Test for edge case when no legal moves are possible at the start of the round
-            //movesAvailible = true;
             foreach(Player p in players)
             {
                 List<Move> moveCheck = GenerateLegalMoves(p);
@@ -482,6 +509,7 @@ namespace AzulAI
                     activePlayer.penaltyAccruedThisRound += 1;
                     TileToPenaltyRow(pool.Find(FindPenaltyTile), activePlayer);
                     pool.Remove(pool.Find(FindPenaltyTile));
+                    startingPlayer = activePlayer;
                 }
 
                 //Place the selected tiles in the indicated row
