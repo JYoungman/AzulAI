@@ -691,10 +691,32 @@ namespace AzulAI
             }
 
             List<Player> winners = new List<Player>();
+            List<int> horCount = new List<int>();
+
             foreach (Player p in players)
             {
                 if (p.score == curHighScore)
                     winners.Add(p);
+            }
+
+            //Attempt to break ties
+            if(winners.Count > 1)
+            {
+                winners.Sort((x, y) => x.FullRowCount().CompareTo(y.FullRowCount()));
+                
+                int curMaxRows = winners[0].FullRowCount();
+                int tieIdx = 0;
+
+                for(int i = 0; i < winners.Count; i++)
+                {
+                    if(winners[i].FullRowCount() == curMaxRows)
+                    {
+                        tieIdx = i;
+                        break;
+                    }
+                }
+
+                winners = winners.GetRange(tieIdx, winners.Count - tieIdx);
             }
 
             return winners;
@@ -883,7 +905,6 @@ namespace AzulAI
         //-----------------------------------------------------------------
         //              Player Data Acquisition Functions
         //-----------------------------------------------------------------
-
         
 
     }
