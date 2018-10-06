@@ -771,9 +771,10 @@ namespace AzulAI
             //Determine count of tiles to be pulled. For moves pulling from a factory.
             if (m.factoryIdx >= 0)
             {
+                var factory = factories[m.factoryIdx];
                 for (int i = 0; i < 4; i++)
                 {
-                    if (factories[m.factoryIdx].tiles[i] != null && factories[m.factoryIdx].tiles[i].color == m.color)
+                    if (factory.tiles[i]?.color == m.color)
                         tiles++;
                 }
             }
@@ -782,7 +783,7 @@ namespace AzulAI
             {
                 foreach(Tile t in pool)
                 {
-                    if(t != null && t.color == m.color)
+                    if(t?.color == m.color)
                     {
                         tiles++;
                     }
@@ -791,10 +792,11 @@ namespace AzulAI
 
             if (m.rowIdx >= 0)
             {
-                if (tiles >= p.tileStores[m.rowIdx].Length - p.GetNextOpenSpaceInTileStoreRow(m.rowIdx))
+                var nextOpenSpace = p.tileStores[m.rowIdx].Length - p.GetNextOpenSpaceInTileStoreRow(m.rowIdx);
+                if (tiles >= nextOpenSpace)
                 {
                     value++;
-                    tiles -= p.tileStores[m.rowIdx].Length - p.GetNextOpenSpaceInTileStoreRow(m.rowIdx);
+                    tiles -= nextOpenSpace;
 
                     //Determine grid location where tile will be placed
                     int placedColumn = 0;
