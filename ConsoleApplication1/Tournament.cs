@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,6 +24,9 @@ namespace AzulAI
             var totalScores = new int[Players.Count];
             var totalGameRounds = 0u;
             var ties = 0;
+
+            var timer = new Stopwatch();
+            timer.Start();
 
             for (int i = 0; i < Rounds; i++)
             {
@@ -48,10 +52,12 @@ namespace AzulAI
 
                 totalGameRounds += gameResult.roundCount;
             }
+            timer.Stop();
 
             var tournamentResults = new TournamentResults()
             {
                 Ties = ties,
+                Time = timer.Elapsed,
             };
 
             for (int i = 0; i < Players.Count; i++)
@@ -75,5 +81,7 @@ namespace AzulAI
         public double AverageRounds { get; set; }
 
         public int Ties { get; set; }
+
+        public TimeSpan Time { get; set; }
     }
 }
