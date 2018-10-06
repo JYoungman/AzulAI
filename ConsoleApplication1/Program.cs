@@ -11,36 +11,30 @@ namespace AzulAI
         static void Main(string[] args)
         {
             List<Player> AIs = new List<Player>();
-            AIs.Add(new QuickEndPlayer());
+            AIs.Add(new Player());
             AIs.Add(new SimpleGreedyPlayer());
             AIs.Add(new SimpleGreedyPlayer());
             AIs.Add(new QuickEndPlayer());
 
-            Console.Write("Beginning match with " + AIs.Count + " players.\n");
+            Console.WriteLine("Beginning match with " + AIs.Count + " players.");
             for(int i = 0; i < AIs.Count; i++)
             {
-                Console.Write("Player "+(i+1)+": " + AIs[i].DisplayName() + "\n");
+                Console.WriteLine("Player "+(i+1)+": " + AIs[i].DisplayName() + "");
             }
-            
-            GameManager gm = new GameManager(AIs);
-            GameResults results = gm.PlayGame();
 
-            Console.Write("\nResults:\n");
+            var tournament = new Tournament(AIs, 1000);
+            var results = tournament.PlayTournament();
+
+            Console.WriteLine();
+            Console.WriteLine("Results:");
             for(int i = 0; i < AIs.Count; i++)
             {
-                Console.Write("Player " + (i + 1) + ": " + AIs[i].DisplayName() + " " + results.players[i].score + "\n");
+                Console.WriteLine($"Player {i + 1}: {results.WinPercentages[i]:P1} Avg Score: {results.AverageScores[i]:F1} {AIs[i].DisplayName()} ");
             }
             
-            Console.Write("Winner(s): ");
-            for (int i = 0; i < results.winners.Count; i++ )
-            {
-                Console.Write(results.winners[i].DisplayName() + " ");
-            }
-            Console.Write("\n");
+            Console.WriteLine($"Avg Game Length: {results.AverageRounds:F}");
 
-            Console.Write("Game Length: " + results.roundCount + "\n");
-
-            Console.Write("Press Enter to exit.");
+            Console.WriteLine("Press Enter to exit.");
             Console.Read();
              
         }

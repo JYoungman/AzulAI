@@ -51,6 +51,7 @@
     <Compile Include="QuickEndPlayer.cs" />
     <Compile Include="SimpleGreedyPlayer.cs" />
     <Compile Include="Tile.cs" />
+    <Compile Include="Tournament.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

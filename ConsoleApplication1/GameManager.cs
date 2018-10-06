@@ -23,7 +23,7 @@ namespace AzulAI
 
         public Random randNumGen;
 
-        bool verbose = true;
+        bool verbose = false;
 
         public GameManager(List<Player> playerList)
         {
@@ -120,6 +120,7 @@ namespace AzulAI
             foreach(Player p in playerList)
             {
                 p.gameManager = this;
+                p.GameSetup();
             }
 
             //Create random number generator

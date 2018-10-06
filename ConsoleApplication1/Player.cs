@@ -18,8 +18,16 @@ namespace AzulAI
 
         public Player()
         {
+        }
+
+        public void GameSetup()
+        {
+            score = 0;
+            penaltyAccruedThisRound = 0;
+            legalMovesAvailible = true;
+
             tileGrid = new Tile[5][];
-            for (int i = 0; i < 5; i++ )
+            for (int i = 0; i < 5; i++)
             {
                 tileGrid[i] = new Tile[5];
             }
@@ -27,7 +35,7 @@ namespace AzulAI
             tileStores = new Tile[5][];
             for (int i = 0; i < 5; i++)
             {
-                tileStores[i] = new Tile[i+1];
+                tileStores[i] = new Tile[i + 1];
             }
 
             penaltyRow = new Tile[7];
