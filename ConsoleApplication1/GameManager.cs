@@ -831,7 +831,7 @@ namespace AzulAI
 
                     //Determine if set bonus would be gained
                     bool setBonus = true;
-                    Dictionary<int, int> keyCoords = new Dictionary<int, int>();
+                    var keyCoords = new List<KeyValuePair<int, int>>(5);
                     for(int i = 0; i < 5; i++)
                     {
                         for(int j = 0; j < 5; j++)
@@ -840,7 +840,7 @@ namespace AzulAI
                             {
                                 if(i != placedColumn && j != m.rowIdx)
                                 {
-                                    keyCoords.Add(i, j);
+                                    keyCoords.Add(new KeyValuePair<int, int>(i, j));
                                 }
                             }
                         }
