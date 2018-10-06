@@ -31,8 +31,10 @@ namespace AzulAI
             {
                 Console.WriteLine($"Player {i + 1}: {results.WinPercentages[i]:P1} Avg Score: {results.AverageScores[i]:F1} {AIs[i].DisplayName()} ");
             }
-            
+
+            Console.WriteLine();
             Console.WriteLine($"Avg Game Length: {results.AverageRounds:F}");
+            Console.WriteLine($"Ties: {results.Ties}");
 
             Console.WriteLine("Press Enter to exit.");
             Console.Read();

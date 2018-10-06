@@ -22,11 +22,17 @@ namespace AzulAI
             var wins = new int[Players.Count];
             var totalScores = new int[Players.Count];
             var totalGameRounds = 0u;
+            var ties = 0;
 
             for (int i = 0; i < Rounds; i++)
             {
                 GameManager gm = new GameManager(Players);
                 GameResults gameResult = gm.PlayGame();
+
+                if (gameResult.winners.Count > 1)
+                {
+                    ties++;
+                }
 
                 foreach (var winner in gameResult.winners)
                 {
@@ -43,7 +49,10 @@ namespace AzulAI
                 totalGameRounds += gameResult.roundCount;
             }
 
-            var tournamentResults = new TournamentResults();
+            var tournamentResults = new TournamentResults()
+            {
+                Ties = ties,
+            };
 
             for (int i = 0; i < Players.Count; i++)
             {
@@ -64,5 +73,7 @@ namespace AzulAI
         public List<double> AverageScores { get; } = new List<double>();
 
         public double AverageRounds { get; set; }
+
+        public int Ties { get; set; }
     }
 }
