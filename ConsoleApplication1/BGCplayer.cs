@@ -57,11 +57,21 @@ namespace AzulAI
                     }
                 }
             }
+            else
+            {
+                int tilesNeeded = 5 - GetNextOpenSpaceInTileStoreRow(4);
+                IEnumerable<Move> lastRowMoves = availibleMoves.Where(x => x.rowIdx == 4);
+                lastRowMoves = lastRowMoves.Where(x => gameManager.TilesGainedByMove(x) == tilesNeeded);
+                if (lastRowMoves.Any())
+                {
+                    return lastRowMoves.ElementAt(0);
+                }
+            }
 
             //Second priority: Fourth row
             if (GetNextOpenSpaceInTileStoreRow(3) == 0)
             {
-                IEnumerable<Move> lastRowMoves = availibleMoves.Where(x => x.rowIdx == 4);
+                IEnumerable<Move> lastRowMoves = availibleMoves.Where(x => x.rowIdx == 3);
                 int highestCount = 0;
 
                 foreach (Move m in lastRowMoves)
@@ -98,13 +108,24 @@ namespace AzulAI
                     }
                 }
             }
+            else
+            {
+                int tilesNeeded = 4 - GetNextOpenSpaceInTileStoreRow(3);
+                IEnumerable<Move> lastRowMoves = availibleMoves.Where(x => x.rowIdx == 3);
+                lastRowMoves = lastRowMoves.Where(x => gameManager.TilesGainedByMove(x) == tilesNeeded);
+                if (lastRowMoves.Any())
+                {
+                    return lastRowMoves.ElementAt(0);
+                }
+            }
 
             //Third priority: First row
             if (GetNextOpenSpaceInTileStoreRow(0) == 0)
             {
                 //Get moves that exactly fill row
+                IEnumerable<Move> thisRowMoves = availibleMoves.Where(x => x.rowIdx == 0);
                 List<Move> rowFillMoves = new List<Move>();
-                foreach(Move m in availibleMoves)
+                foreach(Move m in thisRowMoves)
                 {
                     if (gameManager.TilesGainedByMove(m) == 1)
                         rowFillMoves.Add(m);
@@ -127,8 +148,9 @@ namespace AzulAI
             if (GetNextOpenSpaceInTileStoreRow(1) == 0)
             {
                 //Get moves that exactly fill row
+                IEnumerable<Move> thisRowMoves = availibleMoves.Where(x => x.rowIdx == 1);
                 List<Move> rowFillMoves = new List<Move>();
-                foreach (Move m in availibleMoves)
+                foreach (Move m in thisRowMoves)
                 {
                     if (gameManager.TilesGainedByMove(m) == 2)
                         rowFillMoves.Add(m);
