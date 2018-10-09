@@ -11,7 +11,7 @@ namespace AzulAI
         static void Main(string[] args)
         {
             List<Player> AIs = new List<Player>();
-            AIs.Add(new Player());
+            AIs.Add(new BGCplayer());
             AIs.Add(new SimpleGreedyPlayer());
             AIs.Add(new SimpleGreedyPlayer());
             AIs.Add(new QuickEndPlayer());

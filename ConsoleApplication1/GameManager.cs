@@ -891,8 +891,93 @@ namespace AzulAI
                 }
             }
 
-
             return value;
+        }
+
+        //Returns the amount of tiles of a given color found in specified factory
+        public int TilesGainedByMove(Move m)
+        {
+            int tileCount = 0;
+
+            if(m.factoryIdx == -1)
+            {
+                foreach(Tile t in pool)
+                {
+                    if (t?.color == m.color)
+                        tileCount++;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    if (factories[m.factoryIdx].tiles[i]?.color == m.color)
+                        tileCount++;
+                }
+            }
+
+            return tileCount;
+        }
+
+        //Return count of each tile color play has placed on their tile grid, in descending order
+        public List<KeyValuePair<TileColor, int>> PlacedTilesByColor(Player p)
+        {
+            List<KeyValuePair<TileColor, int>> colorCounts = new List<KeyValuePair<TileColor,int>>();
+
+            int blackCount = 0;
+            int blueCount = 0;
+            int redCount = 0;
+            int whiteCount = 0;
+            int yellowCount = 0;
+
+            for(int x = 0; x < 5; x++)
+            {
+                for(int y = 0; y < 5; y++)
+                {
+                    if(p.tileGrid[x][y] != null)
+                    {
+                        switch(p.tileGrid[x][y].color)
+                        {
+                            case TileColor.black:
+                                {
+                                    blackCount++;
+                                    break;
+                                }
+                            case TileColor.blue:
+                                {
+                                    blueCount++;
+                                    break;
+                                }
+                            case TileColor.red:
+                                {
+                                    redCount++;
+                                    break;
+                                }
+                            case TileColor.white:
+                                {
+                                    whiteCount++;
+                                    break;
+                                }
+                            case TileColor.yellow:
+                                {
+                                    yellowCount++;
+                                    break;
+                                }
+                        }
+                    }
+                }
+            }
+
+            colorCounts.Add(new KeyValuePair<TileColor, int>(TileColor.black, blackCount));
+            colorCounts.Add(new KeyValuePair<TileColor, int>(TileColor.blue, blueCount));
+            colorCounts.Add(new KeyValuePair<TileColor, int>(TileColor.red, redCount));
+            colorCounts.Add(new KeyValuePair<TileColor, int>(TileColor.white, whiteCount));
+            colorCounts.Add(new KeyValuePair<TileColor, int>(TileColor.yellow, yellowCount));
+
+            colorCounts.Sort((x, y) => x.Value.CompareTo(y.Value));
+            colorCounts.Reverse();
+
+            return colorCounts;
         }
 
         //-----------------------------------------------------------------
@@ -927,6 +1012,7 @@ namespace AzulAI
             return false;
         }
 
+        //Determine points docked for placing a tile at a certain location on the penalty row
         int PenaltyAtPenaltyRowLocation(int column)
         {
             int penalty = 1;
