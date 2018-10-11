@@ -42,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BGCplayer.cs" />
+    <Compile Include="BonusSeeker.cs" />
     <Compile Include="Factory.cs" />
     <Compile Include="GameManager.cs" />
     <Compile Include="Move.cs" />

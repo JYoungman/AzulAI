@@ -14,7 +14,7 @@ namespace AzulAI
             AIs.Add(new BGCplayer());
             AIs.Add(new SimpleGreedyPlayer());
             AIs.Add(new SimpleGreedyPlayer());
-            AIs.Add(new QuickEndPlayer());
+            AIs.Add(new BonusSeeker());
 
             Console.WriteLine("Beginning match with " + AIs.Count + " players.");
             for(int i = 0; i < AIs.Count; i++)
