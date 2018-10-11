@@ -12,7 +12,7 @@ namespace AzulAI
         public override Move PerformMove(List<Move> availibleMoves)
         {
             availibleMoves.Sort((a, b) => gameManager.ExpectedMoveValue(a, this).CompareTo(gameManager.ExpectedMoveValue(b, this)));
-            return availibleMoves[0];
+            return availibleMoves[availibleMoves.Count-1];
         }
 
         //Courtesy function for displaying information about match and results.

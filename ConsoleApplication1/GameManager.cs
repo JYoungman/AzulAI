@@ -980,6 +980,18 @@ namespace AzulAI
             return colorCounts;
         }
 
+        //Returns the color of tile that gets placed at the provided coordinates
+        public TileColor TileColorAtLocation(int x, int y)
+        {
+            return tileKey[x][y].color;
+        }
+
+        //Returns whether or not the last round condition has been met
+        public bool IsLastRound()
+        {
+            return lastRound;
+        }
+
         //-----------------------------------------------------------------
         //              Tile Management Functions
         //-----------------------------------------------------------------
