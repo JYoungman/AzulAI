@@ -20,11 +20,11 @@ namespace AzulAI
             //Failing that, favor getting more tiles onto the board
             for (int y = 1; y < 5; y++ )
             {
-                if(tileStores[y][0] != null)
+                if(TileStores[y][0] != null)
                 {
                     foreach(Move m in availibleMoves)
                     {
-                        if(m.color == tileStores[y][0].color)
+                        if(m.color == TileStores[y][0].color)
                         {
                             return m;
                         }

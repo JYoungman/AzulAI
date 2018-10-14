@@ -10,9 +10,9 @@ namespace AzulAI
         public int penaltyAccruedThisRound = 0;
         public bool legalMovesAvailible = true;
 
-        public Tile[][] tileGrid { get; set; }
-        public Tile[][] tileStores { get; set; }
-        public Tile[] penaltyRow { get; set; }
+        public Tile[,] TileGrid { get; set; }
+        public Tile[][] TileStores { get; set; }
+        public Tile[] PenaltyRow { get; set; }
 
         public GameManager gameManager;
 
@@ -26,19 +26,15 @@ namespace AzulAI
             penaltyAccruedThisRound = 0;
             legalMovesAvailible = true;
 
-            tileGrid = new Tile[5][];
+            TileGrid = new Tile[5, 5];
+
+            TileStores = new Tile[5][];
             for (int i = 0; i < 5; i++)
             {
-                tileGrid[i] = new Tile[5];
+                TileStores[i] = new Tile[i + 1];
             }
 
-            tileStores = new Tile[5][];
-            for (int i = 0; i < 5; i++)
-            {
-                tileStores[i] = new Tile[i + 1];
-            }
-
-            penaltyRow = new Tile[7];
+            PenaltyRow = new Tile[7];
         }
         
         //Main AI method. Determine which of the legally availible moves the player should take on their current turn.
@@ -55,9 +51,9 @@ namespace AzulAI
 
         public int GetNextOpenSpaceInTileStoreRow(int rowIdx)
         {
-            for(int i = 0; i < tileStores[rowIdx].Length; i++)
+            for(int i = 0; i < TileStores[rowIdx].Length; i++)
             {
-                if (tileStores[rowIdx][i] == null)
+                if (TileStores[rowIdx][i] == null)
                     return i;
             }
 
@@ -66,9 +62,9 @@ namespace AzulAI
 
         public int GetNextOpenSpaceInPenaltyRow()
         {
-            for(int i = 0; i < penaltyRow.Length; i++)
+            for(int i = 0; i < PenaltyRow.Length; i++)
             {
-                if (penaltyRow[i] == null)
+                if (PenaltyRow[i] == null)
                     return i;
             }
 
@@ -81,42 +77,42 @@ namespace AzulAI
             int combo = 0;
 
             //Horizontal checks
-            if(x > 0 && tileGrid[x-1][y] != null)
+            if(x > 0 && TileGrid[x-1, y] != null)
             {
                 combo++;
 
-                if(x > 1 && tileGrid[x-2][y] != null)
+                if(x > 1 && TileGrid[x-2, y] != null)
                 {
                     combo++;
                 }
             }
 
-            if(x < 4 && tileGrid[x+1][y] != null)
+            if(x < 4 && TileGrid[x+1, y] != null)
             {
                 combo++;
                 
-                if (x < 3 && tileGrid[x+2][y] != null)
+                if (x < 3 && TileGrid[x+2, y] != null)
                 {
                     combo++;
                 }
             }
 
             //Vertical checks
-            if (y > 0 && tileGrid[x][y - 1] != null)
+            if (y > 0 && TileGrid[x, y - 1] != null)
             {
                 combo++;
 
-                if (y > 1 && tileGrid[x][y - 2] != null)
+                if (y > 1 && TileGrid[x, y - 2] != null)
                 {
                     combo++;
                 }
             }
 
-            if (y < 4 && tileGrid[x][y + 1] != null)
+            if (y < 4 && TileGrid[x, y + 1] != null)
             {
                 combo++;
 
-                if (y < 3 && tileGrid[x][y + 2] != null)
+                if (y < 3 && TileGrid[x, y + 2] != null)
                 {
                     combo++;
                 }
@@ -134,7 +130,7 @@ namespace AzulAI
                 bool isFull = true;
                 for(int j = 0; j < 5; j++)
                 {
-                    if(tileGrid[i][j] == null)
+                    if(TileGrid[i, j] == null)
                     {
                         isFull = false;
                         break;
@@ -158,7 +154,7 @@ namespace AzulAI
 
                 for(int i = 0; i < 5; i++)
                 {
-                    if(tileGrid[i][j] == null)
+                    if(TileGrid[i, j] == null)
                     {
                         isFull = false;
                         break;
@@ -181,9 +177,9 @@ namespace AzulAI
             {
                 for(int j = 0; j < 5; j++)
                 {
-                    if(tileGrid[i][j] != null)
+                    if(TileGrid[i, j] != null)
                     {
-                        switch(tileGrid[i][j].color)
+                        switch(TileGrid[i, j].color)
                         {
                             case TileColor.blue:
                                 {
@@ -227,9 +223,9 @@ namespace AzulAI
         //Returns true if a store row is full, meaning that a tile will be added to the main grid at the end of the round
         public bool TileStoreRowComplete(int rowIdx)
         {
-            for (int i = 0; i < tileStores[rowIdx].Length; i++)
+            for (int i = 0; i < TileStores[rowIdx].Length; i++)
             {
-                if(tileStores[rowIdx][i] == null)
+                if(TileStores[rowIdx][i] == null)
                 {
                     return false;
                 }

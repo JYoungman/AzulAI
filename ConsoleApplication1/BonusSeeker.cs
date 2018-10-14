@@ -37,7 +37,7 @@ namespace AzulAI
                 int tilesInColumn = 0;
                 for(int y = 0; y < 5; y++)
                 {
-                    if (tileGrid[i][y] != null)
+                    if (TileGrid[i, y] != null)
                         tilesInColumn++;
                 }
                 columnCompletion.Add(new KeyValuePair<int, int>(i, tilesInColumn));
@@ -54,7 +54,7 @@ namespace AzulAI
                     List<KeyValuePair<TileColor,int>> availibleColors = new List<KeyValuePair<TileColor, int>>();
                     for(int y = 0; y < 5; y++)
                     {
-                        if(tileGrid[kvp.Key][y] == null)
+                        if(TileGrid[kvp.Key, y] == null)
                         {
                             availibleColors.Add(new KeyValuePair<TileColor,int>(gameManager.TileColorAtLocation(kvp.Key, y), y));
                         }
@@ -89,7 +89,7 @@ namespace AzulAI
                     int openSlots = 0;
                     for(int x = 0; x < 5; x++)
                     {
-                        if(tileGrid[x][i] == null)
+                        if(TileGrid[x, i] == null)
                         {
                             openSlots++;
                         }
