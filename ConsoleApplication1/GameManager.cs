@@ -985,6 +985,19 @@ namespace AzulAI
             return tileKey[x, y].color;
         }
 
+        //Returns the column the color belongs in for the given row
+        public int ColumnOfTileColor(int x, TileColor color)
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                if (tileKey[x, i].color == color)
+                {
+                    return i;
+                }
+            }
+            throw new InvalidOperationException(color.ToString());
+        }
+
         //Returns whether or not the last round condition has been met
         public bool IsLastRound()
         {

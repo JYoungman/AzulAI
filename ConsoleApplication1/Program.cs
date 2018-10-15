@@ -11,18 +11,22 @@ namespace AzulAI
         static void Main(string[] args)
         {
             List<Player> AIs = new List<Player>();
-            AIs.Add(new BGCplayer());
+            // AIs.Add(new PureRandom());
+            // AIs.Add(new BGCplayer());
+            // AIs.Add(new QuickEndPlayer());
+            AIs.Add(new SimpleGreedyPlayer());
+            AIs.Add(new CentrestGreedyPlayer());
             AIs.Add(new SimpleGreedyPlayer());
             AIs.Add(new SimpleGreedyPlayer());
-            AIs.Add(new BonusSeeker());
 
-            Console.WriteLine("Beginning match with " + AIs.Count + " players.");
+            var rounds = 10000;
+            Console.WriteLine($"Beginning {rounds} round match with {AIs.Count} players.");
             for(int i = 0; i < AIs.Count; i++)
             {
                 Console.WriteLine("Player "+(i+1)+": " + AIs[i].DisplayName() + "");
             }
 
-            var tournament = new Tournament(AIs, 1000);
+            var tournament = new Tournament(AIs, rounds);
             var results = tournament.PlayTournament();
 
             Console.WriteLine();
