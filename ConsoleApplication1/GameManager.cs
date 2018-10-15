@@ -508,7 +508,6 @@ namespace AzulAI
                 //Take the penalty tile if present
                 if (move.hasPenalty)
                 {
-                    activePlayer.penaltyAccruedThisRound += 1;
                     TileToPenaltyRow(pool.Find(FindPenaltyTile), activePlayer);
                     pool.Remove(pool.Find(FindPenaltyTile));
                     startingPlayer = activePlayer;
@@ -833,7 +832,7 @@ namespace AzulAI
                     }
 
                     //Determine if set bonus would be gained
-                    bool setBonus = true;
+                    bool setBonus = m.color != TileColor.penalty;
                     var keyCoords = new List<KeyValuePair<int, int>>(5);
                     for(int i = 0; i < 5; i++)
                     {
@@ -874,8 +873,7 @@ namespace AzulAI
 
             if(m.hasPenalty)
             {
-                value--;
-                if(penaltyIdx < p.PenaltyRow.Length)
+                if(penaltyIdx >= 0)
                 {
                     value -= PenaltyAtPenaltyRowLocation(penaltyIdx);
                     penaltyIdx++;
@@ -885,7 +883,7 @@ namespace AzulAI
             {
                 int penaltyTiles = Math.Min(tiles, p.PenaltyRow.Length - penaltyIdx);
 
-                for(int i = 0; i < penaltyTiles; i++)
+                for (int i = 0; i < penaltyTiles; i++)
                 {
                     value -= PenaltyAtPenaltyRowLocation(penaltyIdx);
                     penaltyIdx++;

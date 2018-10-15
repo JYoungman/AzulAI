@@ -32,7 +32,8 @@ namespace AzulAI
 
             for (int i = 0; i < Rounds; i++)
             {
-                GameManager gm = new GameManager(Players);
+                // Clone the list so it's not affected by turn order
+                GameManager gm = new GameManager(new List<Player>(Players));
                 GameResults gameResult = gm.PlayGame();
 
                 if (gameResult.winners.Count > 1)
