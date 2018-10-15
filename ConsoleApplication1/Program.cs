@@ -41,10 +41,24 @@ namespace AzulAI
             Console.WriteLine($"Ties: {results.Ties}"); ;
             Console.WriteLine($"Time: {results.Time.TotalSeconds:F}s");
 
+            ShowHeatMap(results.HeatMap);
 
             Console.WriteLine("Press Enter to exit.");
             Console.Read();
              
+        }
+
+        private static void ShowHeatMap(double[,] heatMap)
+        {
+            Console.WriteLine("Heat Map:");
+            for (int y = 0; y < 5; y++)
+            {
+                for (int x = 0; x < 5; x++)
+                {
+                    Console.Write(heatMap[x, y].ToString("P1") + " ");
+                }
+                Console.WriteLine();
+            }
         }
     }
 }

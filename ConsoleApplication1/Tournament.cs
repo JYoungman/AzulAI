@@ -24,6 +24,7 @@ namespace AzulAI
             var totalScores = new int[Players.Count];
             var totalEarnedPenalties = new int[Players.Count];
             var totalAppliedPenalties = new int[Players.Count];
+            var heatMap = new int[5, 5];
             var totalGameRounds = 0u;
             var ties = 0;
 
@@ -44,6 +45,7 @@ namespace AzulAI
                 foreach (var winner in gameResult.winners)
                 {
                     wins[Players.IndexOf(winner)]++;
+                    UpdateHeatMap(heatMap, winner.TileGrid);
                 }
 
                 for (int j = 0; j < Players.Count; j++)
@@ -76,7 +78,37 @@ namespace AzulAI
 
             tournamentResults.AverageRounds = totalGameRounds / (double)Rounds;
 
+            tournamentResults.HeatMap = CompileHeatMap(heatMap);
+
             return tournamentResults;
+        }
+
+        private void UpdateHeatMap(int[,] heatMap, Tile[,] tileGrid)
+        {
+            for (int x = 0; x < 5; x++)
+            {
+                for (int y = 0; y < 5; y++)
+                {
+                    if (tileGrid[x, y] != null)
+                    {
+                        heatMap[x, y]++;
+                    }
+                }
+            }
+        }
+
+        private double[,] CompileHeatMap(int[,] heatMap)
+        {
+            var compiled = new double[5, 5];
+            for (int x = 0; x < 5; x++)
+            {
+                for (int y = 0; y < 5; y++)
+                {
+                    compiled[x, y] = heatMap[x, y] / (double)Rounds;
+                }
+            }
+
+            return compiled;
         }
     }
 
@@ -93,5 +125,7 @@ namespace AzulAI
         public int Ties { get; set; }
 
         public TimeSpan Time { get; set; }
+
+        public double[,] HeatMap { get; set; }
     }
 }
