@@ -29,7 +29,7 @@ namespace AzulAI
             Console.WriteLine("Results:");
             for(int i = 0; i < AIs.Count; i++)
             {
-                Console.WriteLine($"Player {i + 1}: {results.WinPercentages[i]:P1} Avg Score: {results.AverageScores[i]:F1} {AIs[i].DisplayName()} ");
+                Console.WriteLine($"Player {i + 1}: {results.WinPercentages[i]:P1} Avg Score: {results.AverageScores[i]:F1}, Avg Earned Penalty: {results.AverageEarnedPenalties[i]:F1}, Avg Applied Penalty: {results.AverageAppliedPenalties[i]:F1}  {AIs[i].DisplayName()} ");
             }
 
             Console.WriteLine();

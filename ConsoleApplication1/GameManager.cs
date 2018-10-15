@@ -312,8 +312,10 @@ namespace AzulAI
                 p.score += pointsEarned;
 
                 //Deduct penalties, not going below zero
-                p.score -= p.penaltyAccruedThisRound;
-                p.score = Math.Max(p.score, 0);
+                var appliedPenalty = Math.Min(p.penaltyAccruedThisRound, p.score);
+                p.score -= appliedPenalty;
+                p.totalAppliedPenalties += appliedPenalty;
+                p.totalEarnedPenalties += p.penaltyAccruedThisRound;
                 p.penaltyAccruedThisRound = 0;
 
                 //Combo bonuses assigned on last round

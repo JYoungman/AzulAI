@@ -8,6 +8,8 @@ namespace AzulAI
     {
         public int score = 0;
         public int penaltyAccruedThisRound = 0;
+        public int totalEarnedPenalties = 0;
+        public int totalAppliedPenalties = 0; // Possibly lower as your not allowed to go negative.
         public bool legalMovesAvailible = true;
 
         public Tile[,] TileGrid { get; set; }
@@ -24,6 +26,8 @@ namespace AzulAI
         {
             score = 0;
             penaltyAccruedThisRound = 0;
+            totalAppliedPenalties = 0;
+            totalEarnedPenalties = 0;
             legalMovesAvailible = true;
 
             TileGrid = new Tile[5, 5];

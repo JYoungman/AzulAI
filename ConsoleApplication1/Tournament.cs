@@ -22,6 +22,8 @@ namespace AzulAI
         {
             var wins = new int[Players.Count];
             var totalScores = new int[Players.Count];
+            var totalEarnedPenalties = new int[Players.Count];
+            var totalAppliedPenalties = new int[Players.Count];
             var totalGameRounds = 0u;
             var ties = 0;
 
@@ -47,7 +49,10 @@ namespace AzulAI
                 {
                     // players comes back in a different order than it started
                     var player = gameResult.players[j];
-                    totalScores[Players.IndexOf(player)] += player.score;
+                    var playerIndex = Players.IndexOf(player);
+                    totalScores[playerIndex] += player.score;
+                    totalEarnedPenalties[playerIndex] += player.totalEarnedPenalties;
+                    totalAppliedPenalties[playerIndex] += player.totalAppliedPenalties;
                 }
 
                 totalGameRounds += gameResult.roundCount;
@@ -64,6 +69,8 @@ namespace AzulAI
             {
                 tournamentResults.WinPercentages.Add(wins[i] / (double)Rounds);
                 tournamentResults.AverageScores.Add(totalScores[i] / (double)Rounds);
+                tournamentResults.AverageEarnedPenalties.Add(totalEarnedPenalties[i] / (double)Rounds);
+                tournamentResults.AverageAppliedPenalties.Add(totalAppliedPenalties[i] / (double)Rounds);
             }
 
             tournamentResults.AverageRounds = totalGameRounds / (double)Rounds;
@@ -77,6 +84,8 @@ namespace AzulAI
         public List<double> WinPercentages { get; } = new List<double>();
 
         public List<double> AverageScores { get; } = new List<double>();
+        public List<double> AverageEarnedPenalties { get; } = new List<double>();
+        public List<double> AverageAppliedPenalties { get; } = new List<double>();
 
         public double AverageRounds { get; set; }
 
