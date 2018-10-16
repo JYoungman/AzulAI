@@ -13,7 +13,7 @@ namespace AzulAI
         public bool legalMovesAvailible = true;
 
         public Tile[,] TileGrid { get; set; }
-        public Tile[][] TileStores { get; set; }
+        public PatternLine[] PatternLines { get; set; }
         public Tile[] PenaltyRow { get; set; }
 
         public GameManager gameManager;
@@ -32,10 +32,10 @@ namespace AzulAI
 
             TileGrid = new Tile[5, 5];
 
-            TileStores = new Tile[5][];
+            PatternLines = new PatternLine[5];
             for (int i = 0; i < 5; i++)
             {
-                TileStores[i] = new Tile[i + 1];
+                PatternLines[i] = new PatternLine(i + 1);
             }
 
             PenaltyRow = new Tile[7];
@@ -51,17 +51,6 @@ namespace AzulAI
         public virtual string DisplayName()
         {
             return "Default AI";
-        }
-
-        public int GetNextOpenSpaceInTileStoreRow(int rowIdx)
-        {
-            for(int i = 0; i < TileStores[rowIdx].Length; i++)
-            {
-                if (TileStores[rowIdx][i] == null)
-                    return i;
-            }
-
-            return -1;
         }
 
         public int GetNextOpenSpaceInPenaltyRow()
@@ -222,20 +211,6 @@ namespace AzulAI
             }
 
             return fullSets;
-        }
-
-        //Returns true if a store row is full, meaning that a tile will be added to the main grid at the end of the round
-        public bool TileStoreRowComplete(int rowIdx)
-        {
-            for (int i = 0; i < TileStores[rowIdx].Length; i++)
-            {
-                if(TileStores[rowIdx][i] == null)
-                {
-                    return false;
-                }
-            }
-
-            return true;
         }
     }
 }

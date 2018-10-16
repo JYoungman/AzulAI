@@ -18,7 +18,7 @@ namespace AzulAI
             //Strategy taken from article: https://theboardgameschronicle.com/2018/04/05/strategies-azul/
 
             //First priority: Fifth row
-            if(GetNextOpenSpaceInTileStoreRow(4) == 0)
+            if(PatternLines[4].IsEmpty)
             {
                 IEnumerable<Move> lastRowMoves = availibleMoves.Where(x => x.rowIdx == 4);
                 int highestCount = 0;
@@ -59,17 +59,17 @@ namespace AzulAI
             }
             else
             {
-                int tilesNeeded = 5 - GetNextOpenSpaceInTileStoreRow(4);
+                int tilesNeeded = PatternLines[4].Availability;
                 IEnumerable<Move> lastRowMoves = availibleMoves.Where(x => x.rowIdx == 4);
                 lastRowMoves = lastRowMoves.Where(x => gameManager.TilesGainedByMove(x) == tilesNeeded);
                 if (lastRowMoves.Any())
                 {
-                    return lastRowMoves.ElementAt(0);
+                    return lastRowMoves.First();
                 }
             }
 
             //Second priority: Fourth row
-            if (GetNextOpenSpaceInTileStoreRow(3) == 0)
+            if (PatternLines[3].IsEmpty)
             {
                 IEnumerable<Move> lastRowMoves = availibleMoves.Where(x => x.rowIdx == 3);
                 int highestCount = 0;
@@ -110,17 +110,17 @@ namespace AzulAI
             }
             else
             {
-                int tilesNeeded = 4 - GetNextOpenSpaceInTileStoreRow(3);
+                int tilesNeeded = PatternLines[3].Availability;
                 IEnumerable<Move> lastRowMoves = availibleMoves.Where(x => x.rowIdx == 3);
                 lastRowMoves = lastRowMoves.Where(x => gameManager.TilesGainedByMove(x) == tilesNeeded);
                 if (lastRowMoves.Any())
                 {
-                    return lastRowMoves.ElementAt(0);
+                    return lastRowMoves.First();
                 }
             }
 
             //Third priority: First row
-            if (GetNextOpenSpaceInTileStoreRow(0) == 0)
+            if (PatternLines[0].IsEmpty)
             {
                 //Get moves that exactly fill row
                 IEnumerable<Move> thisRowMoves = availibleMoves.Where(x => x.rowIdx == 0);
@@ -145,7 +145,7 @@ namespace AzulAI
             }
 
             //Fourth priority: Second row
-            if (GetNextOpenSpaceInTileStoreRow(1) == 0)
+            if (PatternLines[0].IsEmpty)
             {
                 //Get moves that exactly fill row
                 IEnumerable<Move> thisRowMoves = availibleMoves.Where(x => x.rowIdx == 1);
@@ -173,7 +173,6 @@ namespace AzulAI
             var scoredMoves = availibleMoves.Select(move => new KeyValuePair<Move, int>(move, gameManager.ExpectedMoveValue(move, this))).ToList();
             scoredMoves.Sort((a, b) => a.Value.CompareTo(b.Value));
             return scoredMoves[scoredMoves.Count - 1].Key;
-
         }
 
     }

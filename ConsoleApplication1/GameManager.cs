@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace AzulAI
 {
@@ -265,7 +266,7 @@ namespace AzulAI
                             movesAvailible = false;
                             foreach (Player pCheck in players)
                             {
-                                if (pCheck.legalMovesAvailible == true)
+                                if (pCheck.legalMovesAvailible)
                                 {
                                     movesAvailible = true;
                                     break;
@@ -284,23 +285,19 @@ namespace AzulAI
                 //Move completed rows to grid
                 for (int y = 0; y < 5; y++ )
                 {
-                    if(p.TileStoreRowComplete(y))
+                    var line = p.PatternLines[y];
+                    if (line.IsFull)
                     {
                         pointsEarned++;
 
-                       for(int x = 0; x < 5; x++)
+                        for(int x = 0; x < 5; x++)
                         {
-                            if(tileKey[x, y].color == p.TileStores[y][0].color)
+                            if(tileKey[x, y].color == line.Color)
                             {
-                                p.TileGrid[x, y] = p.TileStores[y][0];
-                                p.TileStores[y][0] = null;
+                                var tiles = line.Clear();
+                                p.TileGrid[x, y] = tiles.First();
 
-                                //Return excess tiles to the box
-                                for (int i = 1; i < p.TileStores[y].Length; i++ )
-                                {
-                                    box.Add(p.TileStores[y][i]);
-                                    p.TileStores[y][i] = null;
-                                }
+                                box.AddRange(tiles.Skip(1));
 
                                 //Check for adjacency bonuses
                                 pointsEarned += p.AdjacentTiles(x, y);
@@ -344,7 +341,7 @@ namespace AzulAI
             //Iterate through Factories, creating moves for each row its colors can be placed in
             for (int f = 0; f < factories.Count; f++)
             {
-                if (factories[f].availible == true)
+                if (factories[f].availible)
                 {
                     //Generate list of availible colors
                     List<TileColor> availibleColors = new List<TileColor>();
@@ -361,7 +358,7 @@ namespace AzulAI
                                 }
                             }
 
-                            if (addColor == true)
+                            if (addColor)
                             {
                                 availibleColors.Add(factories[f].tiles[i].color);
                             }
@@ -463,44 +460,45 @@ namespace AzulAI
             //Positive values represents a Factory to pull from
             if (move.factoryIdx >= 0)
             {
-                factories[move.factoryIdx].availible = false;
+                var factory = factories[move.factoryIdx];
+                factory.availible = false;
 
                 for (int i = 0; i < 4; i++)
                 {
                     //Assign requested tiles to the appropriate row on the player's board
-                    if (factories[move.factoryIdx].tiles[i] != null && factories[move.factoryIdx].tiles[i].color == move.color)
+                    var tile = factory.tiles[i];
+                    if (tile != null && tile.color == move.color)
                     {
                         if (move.rowIdx >= 0)
                         {
-                            int rowSlot = activePlayer.GetNextOpenSpaceInTileStoreRow(move.rowIdx);
+                            var line = activePlayer.PatternLines[move.rowIdx];
 
-                            if (rowSlot >= 0)
+                            if (!line.IsFull)
                             {
-                                activePlayer.TileStores[move.rowIdx][rowSlot] = factories[move.factoryIdx].tiles[i];
+                                line.Add(tile);
                             }
                             //If there isn't room in the desired row, move remaining tiles to the penalty row
                             else
                             {
-                                TileToPenaltyRow(factories[move.factoryIdx].tiles[i], activePlayer);
+                                TileToPenaltyRow(tile, activePlayer);
                             }
                         }
                         //Negative row index in move indicates penalty row as target row
                         else
                         {
-                            TileToPenaltyRow(factories[move.factoryIdx].tiles[i], activePlayer);
+                            TileToPenaltyRow(tile, activePlayer);
                         }
                     }
                     //Move remaining tiles into the pool
-                    else
+                    else if (tile != null)
                     {
-                        pool.Add(factories[move.factoryIdx].tiles[i]);
+                        pool.Add(tile);
                     }
                 }
-
                 
                 //Empty factory
                 for (int j = 0; j < 4; j++)
-                    factories[move.factoryIdx].tiles[j] = null;
+                    factory.tiles[j] = null;
             }
             //A negative factoryIdx value indicates player has chosen to pull from the pool
             else
@@ -521,11 +519,10 @@ namespace AzulAI
                     {
                         if (move.rowIdx >= 0)
                         {
-                            int rowSlot = activePlayer.GetNextOpenSpaceInTileStoreRow(move.rowIdx);
-
-                            if (rowSlot >= 0)
+                            var line = activePlayer.PatternLines[move.rowIdx];
+                            if (!line.IsFull)
                             {
-                                activePlayer.TileStores[move.rowIdx][rowSlot] = t;
+                                line.Add(t);
                             }
                             //If there isn't room in the desired row, move remaining tiles to the penalty row
                             else
@@ -583,19 +580,8 @@ namespace AzulAI
                 //Rows with four filled tiles are candidates for becoming full rows this game round
                 if (fullTiles == 4)
                 {
-                    bool willFill = true;
-
-                    for (int k = 0; k < p.TileStores[j].Length; k++)
-                    {
-                        if (p.TileStores[j][k] == null)
-                        {
-                            willFill = false;
-                            break;
-                        }
-                    }
-
                     //If tile store row of a grid row with four filled spaces is filled, that row in the tile grid will fill at the end of the round
-                    if (willFill == true)
+                    if (p.PatternLines[j].IsFull)
                         return true;
                 }
             }
@@ -613,7 +599,7 @@ namespace AzulAI
                 bool canMatchInRow = true;
 
                 //Check grid to see if tile of color c is already placed on this row
-                if(p.TileStores[j][0] == null)
+                if(p.PatternLines[j].IsEmpty)
                 {
                     for(int i = 0; i < 5; i++)
                     {
@@ -625,19 +611,9 @@ namespace AzulAI
                     }
                 }
                 //Check if there is space remaining in stores containing tiles of color c
-                else if(p.TileStores[j][0].color == c)
+                else if(p.PatternLines[j].Color == c)
                 {
-                    bool gapFound = false;
-                    for(int i = 0; i < p.TileStores[j].Length; i++)
-                    {
-                        if(p.TileStores[j][i] == null)
-                        {
-                            gapFound = true;
-                            break;
-                        }
-                    }
-
-                    canMatchInRow = gapFound;
+                    canMatchInRow = !p.PatternLines[j].IsFull;
                 }
                 //Full rows or empty rows with appropriate grid space cannot recieve tiles of color c
                 else
@@ -645,7 +621,7 @@ namespace AzulAI
                     canMatchInRow = false;
                 }
 
-                if(canMatchInRow == true)
+                if(canMatchInRow)
                 {
                     rows.Add(j);
                 }
@@ -698,11 +674,7 @@ namespace AzulAI
 
                 for(int i = 0; i < 5; i++)
                 {
-                    for(int j = 0; j < p.TileStores[i].Length; j++)
-                    {
-                        if (p.TileStores[i][j] != null)
-                            knownTiles++;
-                    }
+                    knownTiles += p.PatternLines[i].Load;
                 }
 
                 for(int k = 0; k < p.PenaltyRow.Length; k++)
@@ -768,23 +740,26 @@ namespace AzulAI
             int value = 0;
             int tiles = 0;
 
+            // TODO: This is not a shallow copy. You're modifying the real table.
             Tile[,] tempGrid = p.TileGrid;
 
             //Add tiles that will be put on tile grid at end of turn to temporary grid
-            for(int y = 0; y < p.TileStores.Length; y++)
+            int row = 0;
+            foreach (var line in p.PatternLines)
             {
-                if (p.TileStoreRowComplete(y))
+                if (line.IsFull)
                 {
-                    TileColor tc = p.TileStores[y][0].color;
-                    for (int x = 0; x < 5; x++)
+                    TileColor tc = line.Color;
+                    for (int col = 0; col < 5; col++)
                     {
-                        if (tileKey[x, y].color == tc)
+                        if (tileKey[col, row].color == tc)
                         {
-                            tempGrid[x, y] = p.TileStores[y][0];
+                            tempGrid[col, row] = line.Peak();
                             break;
                         }
                     }
                 }
+                row++;
             }
 
             //Determine count of tiles to be pulled. For moves pulling from a factory.
@@ -811,11 +786,12 @@ namespace AzulAI
 
             if (m.rowIdx >= 0)
             {
-                var nextOpenSpace = p.TileStores[m.rowIdx].Length - p.GetNextOpenSpaceInTileStoreRow(m.rowIdx);
-                if (tiles >= nextOpenSpace)
+                var line = p.PatternLines[m.rowIdx];
+                var availability = line.Availability;
+                if (tiles >= availability)
                 {
                     value++;
-                    tiles -= nextOpenSpace;
+                    tiles -= availability;
 
                     //Determine grid location where tile will be placed
                     int placedColumn = 0;
