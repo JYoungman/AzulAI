@@ -170,8 +170,10 @@ namespace AzulAI
             }
 
             //Fifth priority: Do something reasonable. In this case, highest expected short term value.
-            availibleMoves.Sort((a, b) => gameManager.ExpectedMoveValue(a, this).CompareTo(gameManager.ExpectedMoveValue(b, this)));
-            return availibleMoves[availibleMoves.Count-1];
+            var scoredMoves = availibleMoves.Select(move => new KeyValuePair<Move, int>(move, gameManager.ExpectedMoveValue(move, this))).ToList();
+            scoredMoves.Sort((a, b) => a.Value.CompareTo(b.Value));
+            return scoredMoves[scoredMoves.Count - 1].Key;
+
         }
 
     }
