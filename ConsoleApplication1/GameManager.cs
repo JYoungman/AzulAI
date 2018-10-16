@@ -740,8 +740,7 @@ namespace AzulAI
             int value = 0;
             int tiles = 0;
 
-            // TODO: This is not a shallow copy. You're modifying the real table.
-            Tile[,] tempGrid = p.TileGrid;
+            Tile[,] tempGrid = p.TileGrid.Clone() as Tile[,];
 
             //Add tiles that will be put on tile grid at end of turn to temporary grid
             int row = 0;
