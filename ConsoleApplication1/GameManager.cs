@@ -137,9 +137,10 @@ namespace AzulAI
         //Main game loop. Returns the outcome of the game.
         public GameResults PlayGame()
         {
-            while(!lastRound)
+            var progressMade = true;
+            while(!lastRound && progressMade)
             {
-                GameRound();
+                progressMade = GameRound();
             }
             DisplayText("Game over");
             GameResults results = new GameResults(players, GetWinningPlayers(), roundCount);
@@ -147,7 +148,7 @@ namespace AzulAI
         }
 
         //Play a round of the game. The game is a series of these. Should probably be several, smaller functions.
-        void GameRound()
+        bool GameRound()
         {
             //Reset tiles
             if (roundCount != 0)
@@ -241,6 +242,10 @@ namespace AzulAI
                         movesAvailible = true;
                     }
                 }
+                else
+                {
+                    Debug.Assert(false, "No legal moves.");
+                }
             }
 
             //If no player has legal moves, end the game
@@ -248,6 +253,8 @@ namespace AzulAI
             {
                 lastRound = true;
             }
+
+            var progressMade = false;
 
             //Players take their turns until no legal moves remain
             while (movesAvailible)
@@ -260,7 +267,9 @@ namespace AzulAI
                         
                         if (legalMoves.Count > 0)
                         {
-                            ExecuteMove(p.PerformMove(legalMoves), p);
+                            var move = p.PerformMove(legalMoves);
+                            ExecuteMove(move, p);
+                            progressMade |= move.rowIdx != -1;
                             //Check for game end condition
                             lastRound = MoveEndsGame(p);
                         }
@@ -333,6 +342,7 @@ namespace AzulAI
             //Housekeeping
             roundCount++;
             //DisplayText(roundCount.ToString()+"\n");
+            return progressMade;
         }
 
         //Returns a list of all of the moves that the player can legally perform this turn
