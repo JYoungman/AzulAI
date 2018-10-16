@@ -768,6 +768,25 @@ namespace AzulAI
             int value = 0;
             int tiles = 0;
 
+            Tile[,] tempGrid = p.TileGrid;
+
+            //Add tiles that will be put on tile grid at end of turn to temporary grid
+            for(int y = 0; y < p.TileStores.Length; y++)
+            {
+                if (p.TileStoreRowComplete(y))
+                {
+                    TileColor tc = p.TileStores[y][0].color;
+                    for (int x = 0; x < 5; x++)
+                    {
+                        if (tileKey[x, y].color == tc)
+                        {
+                            tempGrid[x, y] = p.TileStores[y][0];
+                            break;
+                        }
+                    }
+                }
+            }
+
             //Determine count of tiles to be pulled. For moves pulling from a factory.
             if (m.factoryIdx >= 0)
             {
@@ -814,7 +833,7 @@ namespace AzulAI
                     bool horizontalBonus = true;
                     for(int x = 0; x < 5; x++)
                     {
-                        if(p.TileGrid[x, m.rowIdx] == null && tileKey[x, m.rowIdx].color != m.color)
+                        if(tempGrid[x, m.rowIdx] == null && tileKey[x, m.rowIdx].color != m.color)
                         {
                             horizontalBonus = false;
                             break;
@@ -824,7 +843,7 @@ namespace AzulAI
                     bool verticalBonus = true;
                     for (int y = 0; y < 5; y++)
                     {
-                        if (p.TileGrid[placedColumn, y] == null && tileKey[placedColumn, y].color != m.color)
+                        if (tempGrid[placedColumn, y] == null && tileKey[placedColumn, y].color != m.color)
                         {
                             verticalBonus = false;
                             break;
@@ -850,7 +869,7 @@ namespace AzulAI
 
                     foreach(KeyValuePair<int, int> coords in keyCoords)
                     {
-                        if(p.TileGrid[coords.Key, coords.Value] == null)
+                        if(tempGrid[coords.Key, coords.Value] == null)
                         {
                             setBonus = false;
                             break;
