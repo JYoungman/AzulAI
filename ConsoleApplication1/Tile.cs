@@ -23,7 +23,7 @@ namespace AzulAI
         yellow,
         white,
         black,
-        penalty,
+        FirstPlayer,
         empty
     }
 }

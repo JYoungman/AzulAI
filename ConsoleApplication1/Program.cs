@@ -19,7 +19,7 @@ namespace AzulAI
             AIs.Add(new BonusSeeker());
             //AIs.Add(new SimpleGreedyPlayer());
 
-            var rounds = 10000;
+            var rounds = 1000;
             Console.WriteLine($"Beginning {rounds} round match with {AIs.Count} players.");
             for(int i = 0; i < AIs.Count; i++)
             {
@@ -51,11 +51,11 @@ namespace AzulAI
         private static void ShowHeatMap(double[,] heatMap)
         {
             Console.WriteLine("Heat Map:");
-            for (int y = 0; y < 5; y++)
+            for (int row = 0; row < 5; row++)
             {
-                for (int x = 0; x < 5; x++)
+                for (int col = 0; col < 5; col++)
                 {
-                    Console.Write(heatMap[x, y].ToString("P1") + " ");
+                    Console.Write(heatMap[row, col].ToString("P1") + " ");
                 }
                 Console.WriteLine();
             }

@@ -14,7 +14,7 @@ namespace AzulAI
 
         public Tile[,] TileGrid { get; set; }
         public PatternLine[] PatternLines { get; set; }
-        public Tile[] PenaltyRow { get; set; }
+        public FloorLine FloorLine { get; set; }
 
         public GameManager gameManager;
 
@@ -38,7 +38,7 @@ namespace AzulAI
                 PatternLines[i] = new PatternLine(i + 1);
             }
 
-            PenaltyRow = new Tile[7];
+            FloorLine = new FloorLine();
         }
         
         //Main AI method. Determine which of the legally availible moves the player should take on their current turn.
@@ -53,61 +53,56 @@ namespace AzulAI
             return "Default AI";
         }
 
-        public int GetNextOpenSpaceInPenaltyRow()
-        {
-            for(int i = 0; i < PenaltyRow.Length; i++)
-            {
-                if (PenaltyRow[i] == null)
-                    return i;
-            }
-
-            return -1;
-        }
-
-        //Returns the sum of adjacency chains starting at x, y in tileGrid. Used for scoring.
-        public int AdjacentTiles(int x, int y)
+        //Returns the sum of adjacency chains starting at row, col in tileGrid. Used for scoring.
+        public int AdjacentTiles(int row, int col)
         {
             int combo = 0;
 
-            //Horizontal checks
-            if(x > 0 && TileGrid[x-1, y] != null)
-            {
-                combo++;
-
-                if(x > 1 && TileGrid[x-2, y] != null)
-                {
-                    combo++;
-                }
-            }
-
-            if(x < 4 && TileGrid[x+1, y] != null)
-            {
-                combo++;
-                
-                if (x < 3 && TileGrid[x+2, y] != null)
-                {
-                    combo++;
-                }
-            }
-
             //Vertical checks
-            if (y > 0 && TileGrid[x, y - 1] != null)
+            for (var r = row + 1; r < 5; r++)
             {
-                combo++;
-
-                if (y > 1 && TileGrid[x, y - 2] != null)
+                if (TileGrid[r, col] != null)
                 {
                     combo++;
                 }
+                else
+                {
+                    break;
+                }
             }
-
-            if (y < 4 && TileGrid[x, y + 1] != null)
+            for (var r = row - 1; r >= 0; r--)
             {
-                combo++;
-
-                if (y < 3 && TileGrid[x, y + 2] != null)
+                if (TileGrid[r, col] != null)
                 {
                     combo++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            //Horizontal checks
+            for (var c = col + 1; c < 5; c++)
+            {
+                if (TileGrid[row, c] != null)
+                {
+                    combo++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            for (var c = col - 1; c >= 0; c--)
+            {
+                if (TileGrid[row, c] != null)
+                {
+                    combo++;
+                }
+                else
+                {
+                    break;
                 }
             }
 
@@ -118,12 +113,12 @@ namespace AzulAI
         {
             int fullColumns = 0;
 
-            for (int i = 0; i < 5; i++ )
+            for (int col = 0; col < 5; col++)
             {
                 bool isFull = true;
-                for(int j = 0; j < 5; j++)
+                for (int row = 0; row < 5; row++ )
                 {
-                    if(TileGrid[i, j] == null)
+                    if(TileGrid[row, col] == null)
                     {
                         isFull = false;
                         break;
@@ -141,13 +136,13 @@ namespace AzulAI
         {
             int fullRows = 0;
 
-            for (int j = 0; j < 5; j++)
+            for (int row = 0; row < 5; row++)
             {
                 bool isFull = true;
 
-                for(int i = 0; i < 5; i++)
+                for (int col = 0; col < 5; col++)
                 {
-                    if(TileGrid[i, j] == null)
+                    if(TileGrid[row, col] == null)
                     {
                         isFull = false;
                         break;
@@ -166,13 +161,13 @@ namespace AzulAI
             int fullSets = 0;
             int[] colorCounts = new int[5];
 
-            for (int i = 0; i < 5; i++ )
+            for (int row = 0; row < 5; row++ )
             {
-                for(int j = 0; j < 5; j++)
+                for(int col = 0; col < 5; col++)
                 {
-                    if(TileGrid[i, j] != null)
+                    if(TileGrid[row, col] != null)
                     {
-                        switch(TileGrid[i, j].color)
+                        switch(TileGrid[row, col].color)
                         {
                             case TileColor.blue:
                                 {

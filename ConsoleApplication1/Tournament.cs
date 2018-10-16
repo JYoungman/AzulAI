@@ -85,13 +85,13 @@ namespace AzulAI
 
         private void UpdateHeatMap(int[,] heatMap, Tile[,] tileGrid)
         {
-            for (int x = 0; x < 5; x++)
+            for (int row = 0; row < 5; row++)
             {
-                for (int y = 0; y < 5; y++)
+                for (int col = 0; col < 5; col++)
                 {
-                    if (tileGrid[x, y] != null)
+                    if (tileGrid[row, col] != null)
                     {
-                        heatMap[x, y]++;
+                        heatMap[row, col]++;
                     }
                 }
             }
@@ -100,11 +100,11 @@ namespace AzulAI
         private double[,] CompileHeatMap(int[,] heatMap)
         {
             var compiled = new double[5, 5];
-            for (int x = 0; x < 5; x++)
+            for (int row = 0; row < 5; row++)
             {
-                for (int y = 0; y < 5; y++)
+                for (int col = 0; col < 5; col++)
                 {
-                    compiled[x, y] = heatMap[x, y] / (double)Rounds;
+                    compiled[row, col] = heatMap[row, col] / (double)Rounds;
                 }
             }
 

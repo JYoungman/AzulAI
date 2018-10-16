@@ -23,7 +23,7 @@ namespace AzulAI
         // Give a subpoint preference to the central columns
         private double CalculateCentrality(Move move)
         {
-            if (move.color == TileColor.penalty)
+            if (move.color == TileColor.FirstPlayer)
             {
                 return 0;
             }

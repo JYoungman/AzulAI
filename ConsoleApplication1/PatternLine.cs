@@ -5,7 +5,7 @@ namespace AzulAI
 {
     public class PatternLine
     {
-        private List<Tile> Slots { get; set; }
+        private List<Tile> Slots { get; }
         public int Capacity { get; }
         public int Load => Slots.Count;
         public int Availability => Capacity - Load;

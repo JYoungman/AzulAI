@@ -32,18 +32,18 @@ namespace AzulAI
 
             //Second priority: Columns
             List<KeyValuePair<int, int>> columnCompletion = new List<KeyValuePair<int, int>>();
-            for(int i = 0; i < 5; i++)
+            for(int col = 0; col < 5; col++)
             {
                 int tilesInColumn = 0;
-                for(int y = 0; y < 5; y++)
+                for(int row = 0; row < 5; row++)
                 {
-                    if (TileGrid[i, y] != null)
+                    if (TileGrid[row, col] != null)
                         tilesInColumn++;
                 }
-                columnCompletion.Add(new KeyValuePair<int, int>(i, tilesInColumn));
+                columnCompletion.Add(new KeyValuePair<int, int>(col, tilesInColumn));
             }
 
-            IEnumerable<KeyValuePair<int, int>> completeColumns = columnCompletion.Where(x => x.Value != 0);
+            IEnumerable<KeyValuePair<int, int>> completeColumns = columnCompletion.Where(pair => pair.Value != 0);
 
             if(completeColumns.Count() != 0)
             {
@@ -52,11 +52,11 @@ namespace AzulAI
                 {
                     //Determine open tiles in partially complete columns
                     List<KeyValuePair<TileColor,int>> availibleColors = new List<KeyValuePair<TileColor, int>>();
-                    for(int y = 0; y < 5; y++)
+                    for(int row = 0; row < 5; row++)
                     {
-                        if(TileGrid[kvp.Key, y] == null)
+                        if(TileGrid[row, kvp.Key] == null)
                         {
-                            availibleColors.Add(new KeyValuePair<TileColor,int>(gameManager.TileColorAtLocation(kvp.Key, y), y));
+                            availibleColors.Add(new KeyValuePair<TileColor,int>(gameManager.TileColorAtLocation(row, kvp.Key), row));
                         }
                     }
 
@@ -84,17 +84,17 @@ namespace AzulAI
             {
                 //Find partially complete rows
                 List<KeyValuePair<int, int>> openRows = new List<KeyValuePair<int, int>>();
-                for(int i = 0; i < 5; i++)
+                for(int row = 0; row < 5; row++)
                 {
                     int openSlots = 0;
-                    for(int x = 0; x < 5; x++)
+                    for(int col = 0; col < 5; col++)
                     {
-                        if(TileGrid[x, i] == null)
+                        if(TileGrid[row, col] == null)
                         {
                             openSlots++;
                         }
                     }
-                    openRows.Add(new KeyValuePair<int, int>(i, openSlots));
+                    openRows.Add(new KeyValuePair<int, int>(row, openSlots));
                 }
 
                 openRows = openRows.Where(x => x.Value != 0).ToList<KeyValuePair<int, int>>();
