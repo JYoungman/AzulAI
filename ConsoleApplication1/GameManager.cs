@@ -13,7 +13,7 @@ namespace AzulAI
 
         List<Tile> bag;
         List<Tile> box;
-        List<Tile> pool;
+        List<Tile> centerOfTable;
 
         Tile[,] tileKey;
 
@@ -32,7 +32,7 @@ namespace AzulAI
             //Allocate lists
             bag = new List<Tile>();
             box = new List<Tile>();
-            pool = new List<Tile>();
+            centerOfTable = new List<Tile>();
             factories = new List<Factory>();
 
             //Generate tiles
@@ -45,7 +45,7 @@ namespace AzulAI
                 bag.Add(new Tile(TileColor.black));
             }
 
-            pool.Add(new Tile(TileColor.FirstPlayer));
+            centerOfTable.Add(new Tile(TileColor.FirstPlayer));
 
             players = playerList;
             startingPlayer = players[0];
@@ -153,8 +153,8 @@ namespace AzulAI
             //Reset tiles
             if (roundCount != 0)
             {
-                Debug.Assert(!pool.Any(), "There shouldn't be any tiles left.");
-                pool.Clear();
+                Debug.Assert(!centerOfTable.Any(), "There shouldn't be any tiles left.");
+                centerOfTable.Clear();
                 //Dump excess factory tiles into box
                 foreach(Factory f in factories)
                 {
@@ -180,7 +180,7 @@ namespace AzulAI
                     }
                     else
                     {
-                        pool.Add(t);
+                        centerOfTable.Add(t);
                     }
                 }
                 box.Clear();
@@ -296,7 +296,7 @@ namespace AzulAI
             {
                 int pointsEarned = 0;
 
-                //Move completed rows to grid
+                //Move completed rows to wall
                 for (int row = 0; row < 5; row++ )
                 {
                     var line = p.PatternLines[row];
@@ -307,7 +307,7 @@ namespace AzulAI
                         var col = ColumnOfTileColor(row, line.Color);
 
                         var tiles = line.Clear();
-                        p.TileGrid[row, col] = tiles.First();
+                        p.Wall[row, col] = tiles.First();
 
                         box.AddRange(tiles.Skip(1));
 
@@ -335,13 +335,11 @@ namespace AzulAI
                     bonus += p.FullSetCount() * 10;
                     p.score += bonus;
                 }
-
-                //DisplayText(p.DisplayName() + " score: " + p.score+"\n");
             }
 
             //Housekeeping
             roundCount++;
-            //DisplayText(roundCount.ToString()+"\n");
+            
             return progressMade;
         }
 
@@ -388,7 +386,7 @@ namespace AzulAI
                             legalMoves.Add(new Move(f, row, tc, false));
                         }
 
-                        //Generate moves for moving directly to penalty row
+                        //Generate moves for moving directly to floor line
                         int tileCount = 0;
                         for (int i = 0; i < factories[f].tiles.Length; i++ )
                         {
@@ -404,17 +402,17 @@ namespace AzulAI
                 }
             }
 
-            //Create moves for pulling from the pool
+            //Create moves for pulling from the center of the table
             bool hasFirstPlayerPenalty = false;
             
             //Generate availible color list
-            List<TileColor> colorsInPool = new List<TileColor>();
-            foreach(Tile t in pool)
+            List<TileColor> colorsInCenterOfTable = new List<TileColor>();
+            foreach(Tile t in centerOfTable)
             {
                 if (t != null)
                 {
                     bool colorFound = false;
-                    foreach (TileColor tc in colorsInPool)
+                    foreach (TileColor tc in colorsInCenterOfTable)
                     {
                         if (tc == t.color)
                         {
@@ -425,8 +423,8 @@ namespace AzulAI
 
                     if (colorFound == false)
                     {
-                        colorsInPool.Add(t.color);
-                        //Flag if penalty tile is still in place
+                        colorsInCenterOfTable.Add(t.color);
+                        //Flag if first player tile is still in place
                         if (t.color == TileColor.FirstPlayer)
                         {
                             hasFirstPlayerPenalty = true;
@@ -436,7 +434,7 @@ namespace AzulAI
             }
 
             //Look for legal places to place tiles of availible colors
-            foreach(TileColor tc in colorsInPool)
+            foreach(TileColor tc in colorsInCenterOfTable)
             {
                 List<int> availibleRows = LegalRowsForColor(tc, activePlayer);
 
@@ -446,14 +444,13 @@ namespace AzulAI
                     legalMoves.Add(new Move(-1, row, tc, hasFirstPlayerPenalty));
                 }
 
-                //Generate moves for moving directly to penalty row
+                //Generate moves for moving directly to floor line
                 if (tc != TileColor.FirstPlayer)
                 {
                     legalMoves.Add(new Move(-1, -1, tc, hasFirstPlayerPenalty));
                 }
             }
 
-            //DisplayText("Legal moves: "+legalMoves.Count.ToString()+"\n");
             return legalMoves;
         }
 
@@ -479,22 +476,22 @@ namespace AzulAI
                             {
                                 line.Add(tile);
                             }
-                            //If there isn't room in the desired row, move remaining tiles to the penalty row
+                            //If there isn't room in the desired row, move remaining tiles to the floor line
                             else
                             {
                                 TileToFloorLine(tile, activePlayer);
                             }
                         }
-                        //Negative row index in move indicates penalty row as target row
+                        //Negative row index in move indicates floor line as target row
                         else
                         {
                             TileToFloorLine(tile, activePlayer);
                         }
                     }
-                    //Move remaining tiles into the pool
+                    //Move remaining tiles into the center of the table
                     else if (tile != null)
                     {
-                        pool.Add(tile);
+                        centerOfTable.Add(tile);
                     }
                 }
                 
@@ -502,21 +499,21 @@ namespace AzulAI
                 for (int j = 0; j < 4; j++)
                     factory.tiles[j] = null;
             }
-            //A negative factoryIdx value indicates player has chosen to pull from the pool
+            //A negative factoryIdx value indicates player has chosen to pull from the center of the table
             else
             {
-                //Take the penalty tile if present
+                //Take the first player tile if present
                 if (move.hasFirstPlayerPenalty)
                 {
-                    var firstPlayerTile = pool.Find(tile => tile.color == TileColor.FirstPlayer);
+                    var firstPlayerTile = centerOfTable.Find(tile => tile.color == TileColor.FirstPlayer);
                     TileToFloorLine(firstPlayerTile, activePlayer);
-                    pool.Remove(firstPlayerTile);
+                    centerOfTable.Remove(firstPlayerTile);
                     startingPlayer = activePlayer;
                 }
 
                 //Place the selected tiles in the indicated row
                 List<Tile> toRemove = new List<Tile>();
-                foreach (Tile t in pool)
+                foreach (Tile t in centerOfTable)
                 {
                     if (t != null && t.color == move.color)
                     {
@@ -527,19 +524,19 @@ namespace AzulAI
                             {
                                 line.Add(t);
                             }
-                            //If there isn't room in the desired row, move remaining tiles to the penalty row
+                            //If there isn't room in the desired row, move remaining tiles to the floor line
                             else
                             {
                                 TileToFloorLine(t, activePlayer);
                             }
                         }
-                        //Negative row index in move indicates penalty row as target row
+                        //Negative row index in move indicates floor line as target row
                         else
                         {
                             TileToFloorLine(t, activePlayer);
                         }
 
-                        //Remove the active tile from the pool
+                        //Remove the active tile from center of table
                         toRemove.Add(t);
                         //pool.Remove(t);
                     }
@@ -548,11 +545,11 @@ namespace AzulAI
                 {
                     if (t != null)
                     {
-                        foreach (Tile pt in pool)
+                        foreach (Tile pt in centerOfTable)
                         {
                             if (pt != null && t.color == pt.color)
                             {
-                                pool.Remove(pt);
+                                centerOfTable.Remove(pt);
                                 break;
                             }
                         }
@@ -574,7 +571,7 @@ namespace AzulAI
                 int fullTiles = 0;
                 for (int col = 0; col < 5; col++)
                 {
-                    if (p.TileGrid[row, col] != null)
+                    if (p.Wall[row, col] != null)
                     {
                         fullTiles++;
                     }
@@ -583,7 +580,7 @@ namespace AzulAI
                 //Rows with four filled tiles are candidates for becoming full rows this game round
                 if (fullTiles == 4)
                 {
-                    //If tile store row of a grid row with four filled spaces is filled, that row in the tile grid will fill at the end of the round
+                    //If pattern line of a wall row with four filled spaces is filled, that row in the wall will fill at the end of the round
                     if (p.PatternLines[row].IsFull)
                         return true;
                 }
@@ -592,7 +589,7 @@ namespace AzulAI
             return false;
         }
 
-        //Returns list of rows in which the player can legally place a tile
+        //Returns list of rows in which the player can legally place a tile of a given color
         List<int> LegalRowsForColor(TileColor c, Player p)
         {
             List<int> rows = new List<int>();
@@ -605,21 +602,21 @@ namespace AzulAI
             {
                 bool canMatchInRow = true;
 
-                //Check grid to see if tile of color c is already placed on this row
+                //Check wall to see if tile of color c is already placed on this row
                 if(p.PatternLines[row].IsEmpty)
                 {
                     var col = ColumnOfTileColor(row, c);
-                    if(p.TileGrid[row, col] != null)
+                    if(p.Wall[row, col] != null)
                     {
                         canMatchInRow = false;
                     }
                 }
-                //Check if there is space remaining in stores containing tiles of color c
+                //Check if there is space remaining in pattern lines containing tiles of color c
                 else if(p.PatternLines[row].Color == c)
                 {
                     canMatchInRow = !p.PatternLines[row].IsFull;
                 }
-                //Full rows or empty rows with appropriate grid space cannot recieve tiles of color c
+                //Full rows or empty rows with appropriate wall space cannot recieve tiles of color c
                 else
                 {
                     canMatchInRow = false;
@@ -658,8 +655,8 @@ namespace AzulAI
             //Check bag
             knownTiles += bag.Count;
 
-            //Check pool
-            knownTiles += pool.Count;
+            //Check center of table
+            knownTiles += centerOfTable.Count;
 
             //Check box
             knownTiles += box.Count;
@@ -671,7 +668,7 @@ namespace AzulAI
                 {
                     for(int col = 0; col < 5; col++)
                     {
-                        if (p.TileGrid[row, col] != null)
+                        if (p.Wall[row, col] != null)
                             knownTiles++;
                     }
                 }
@@ -734,15 +731,15 @@ namespace AzulAI
             return winners;
         }
 
-        //Returns the expect point value of move m if performed by player p this turn
+        //Returns the expected point value of move m if performed by player p this turn
         public int ExpectedMoveValue(Move m, Player p)
         {
             int value = 0;
             int tiles = 0;
 
-            Tile[,] tempGrid = p.TileGrid.Clone() as Tile[,];
+            Tile[,] tempGrid = p.Wall.Clone() as Tile[,];
 
-            //Add tiles that will be put on tile grid at end of turn to temporary grid
+            //Add tiles that will be put on wall at end of turn to temporary wall
             int row = 0;
             foreach (var line in p.PatternLines)
             {
@@ -771,10 +768,10 @@ namespace AzulAI
                         tiles++;
                 }
             }
-            //For moves pulling from the pool
+            //For moves pulling from the center of the table
             else
             {
-                foreach(Tile t in pool)
+                foreach(Tile t in centerOfTable)
                 {
                     if(t?.color == m.color)
                     {
@@ -792,7 +789,7 @@ namespace AzulAI
                     value++;
                     tiles -= availability;
 
-                    //Determine grid location where tile will be placed
+                    //Determine wall location where tile will be placed
                     int placedColumn = 0;
                     for (int x = 0; x < 5; x++)
                     {
@@ -894,7 +891,7 @@ namespace AzulAI
 
             if(m.factoryIdx == -1)
             {
-                foreach(Tile t in pool)
+                foreach(Tile t in centerOfTable)
                 {
                     if (t?.color == m.color)
                         tileCount++;
@@ -912,7 +909,7 @@ namespace AzulAI
             return tileCount;
         }
 
-        //Return count of each tile color play has placed on their tile grid, in descending order
+        //Returns count of each tile color play has placed on their wall, in descending order
         public List<KeyValuePair<TileColor, int>> PlacedTilesByColor(Player p)
         {
             List<KeyValuePair<TileColor, int>> colorCounts = new List<KeyValuePair<TileColor,int>>();
@@ -927,9 +924,9 @@ namespace AzulAI
             {
                 for(int col = 0; col < 5; col++)
                 {
-                    if(p.TileGrid[row, col] != null)
+                    if(p.Wall[row, col] != null)
                     {
-                        switch(p.TileGrid[row, col].color)
+                        switch(p.Wall[row, col].color)
                         {
                             case TileColor.black:
                                 {
@@ -1002,7 +999,7 @@ namespace AzulAI
         //              Tile Management Functions
         //-----------------------------------------------------------------
 
-        //Moves specified tile to the penalty row of the specified player
+        //Moves specified tile to the floor line of the specified player
         void TileToFloorLine(Tile t, Player activePlayer)
         {
             if (!activePlayer.FloorLine.IsFull)
@@ -1012,7 +1009,7 @@ namespace AzulAI
                 //Note player penalty accrued for end of round scoring
                 activePlayer.penaltyAccruedThisRound += activePlayer.FloorLine.NextPenalty();
             }
-            //If the penalty row is full, add tile to box instead
+            //If the floor line is full, add tile to box instead
             else
             {
                 box.Add(t);

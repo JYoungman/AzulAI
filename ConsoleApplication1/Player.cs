@@ -12,7 +12,7 @@ namespace AzulAI
         public int totalAppliedPenalties = 0; // Possibly lower as your not allowed to go negative.
         public bool legalMovesAvailible = true;
 
-        public Tile[,] TileGrid { get; set; }
+        public Tile[,] Wall { get; set; }
         public PatternLine[] PatternLines { get; set; }
         public FloorLine FloorLine { get; set; }
 
@@ -30,7 +30,7 @@ namespace AzulAI
             totalEarnedPenalties = 0;
             legalMovesAvailible = true;
 
-            TileGrid = new Tile[5, 5];
+            Wall = new Tile[5, 5];
 
             PatternLines = new PatternLine[5];
             for (int i = 0; i < 5; i++)
@@ -53,7 +53,7 @@ namespace AzulAI
             return "Default AI";
         }
 
-        //Returns the sum of adjacency chains starting at row, col in tileGrid. Used for scoring.
+        //Returns the sum of adjacency chains starting at row, col in Wall. Used for scoring.
         public int AdjacentTiles(int row, int col)
         {
             int combo = 0;
@@ -61,7 +61,7 @@ namespace AzulAI
             //Vertical checks
             for (var r = row + 1; r < 5; r++)
             {
-                if (TileGrid[r, col] != null)
+                if (Wall[r, col] != null)
                 {
                     combo++;
                 }
@@ -72,7 +72,7 @@ namespace AzulAI
             }
             for (var r = row - 1; r >= 0; r--)
             {
-                if (TileGrid[r, col] != null)
+                if (Wall[r, col] != null)
                 {
                     combo++;
                 }
@@ -85,7 +85,7 @@ namespace AzulAI
             //Horizontal checks
             for (var c = col + 1; c < 5; c++)
             {
-                if (TileGrid[row, c] != null)
+                if (Wall[row, c] != null)
                 {
                     combo++;
                 }
@@ -96,7 +96,7 @@ namespace AzulAI
             }
             for (var c = col - 1; c >= 0; c--)
             {
-                if (TileGrid[row, c] != null)
+                if (Wall[row, c] != null)
                 {
                     combo++;
                 }
@@ -118,7 +118,7 @@ namespace AzulAI
                 bool isFull = true;
                 for (int row = 0; row < 5; row++ )
                 {
-                    if(TileGrid[row, col] == null)
+                    if(Wall[row, col] == null)
                     {
                         isFull = false;
                         break;
@@ -142,7 +142,7 @@ namespace AzulAI
 
                 for (int col = 0; col < 5; col++)
                 {
-                    if(TileGrid[row, col] == null)
+                    if(Wall[row, col] == null)
                     {
                         isFull = false;
                         break;
@@ -165,9 +165,9 @@ namespace AzulAI
             {
                 for(int col = 0; col < 5; col++)
                 {
-                    if(TileGrid[row, col] != null)
+                    if(Wall[row, col] != null)
                     {
-                        switch(TileGrid[row, col].color)
+                        switch(Wall[row, col].color)
                         {
                             case TileColor.blue:
                                 {
