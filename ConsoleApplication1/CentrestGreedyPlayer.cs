@@ -32,7 +32,7 @@ namespace AzulAI
                 return 0;
             }
 
-            var column = gameManager.ColumnOfTileColor(move.rowIdx, move.color);
+            var column = Wall.ColumnOfTileColor(move.rowIdx, move.color);
             switch (column)
             {
                 case 0:

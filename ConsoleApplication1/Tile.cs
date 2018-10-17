@@ -1,29 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AzulAI
+﻿namespace AzulAI
 {
     public class Tile
     {
-        public TileColor color { get; set; }
+        public TileColor Color { get; }
 
-        public Tile(TileColor tc)
+        public Tile(TileColor color)
         {
-            color = tc;
+            Color = color;
         }
     }
 
     public enum TileColor
     {
-        blue,
-        red,
-        yellow,
-        white,
-        black,
+        None,
+        Blue,
+        Red,
+        Yellow,
+        White,
+        Black,
         FirstPlayer,
-        empty
     }
 }

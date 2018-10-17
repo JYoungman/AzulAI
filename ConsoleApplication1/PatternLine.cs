@@ -27,13 +27,13 @@ namespace AzulAI
                     throw new InvalidOperationException("The pattern line is empty.");
                 }
 
-                return Slots[0].color;
+                return Slots[0].Color;
             }
         }
 
         public void Add(Tile tile)
         {
-            if (!IsEmpty && tile.color != Color)
+            if (!IsEmpty && tile.Color != Color)
             {
                 throw new InvalidOperationException("Color mismatch.");
             }

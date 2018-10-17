@@ -57,6 +57,7 @@
     <Compile Include="SimpleGreedyPlayer.cs" />
     <Compile Include="Tile.cs" />
     <Compile Include="Tournament.cs" />
+    <Compile Include="Wall.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

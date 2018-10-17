@@ -15,8 +15,6 @@ namespace AzulAI
         List<Tile> box;
         List<Tile> centerOfTable;
 
-        Tile[,] tileKey;
-
         List<Factory> factories;
 
         bool lastRound = false;
@@ -38,11 +36,11 @@ namespace AzulAI
             //Generate tiles
             for (int i = 0; i < 20; i++)
             {
-                bag.Add(new Tile(TileColor.blue));
-                bag.Add(new Tile(TileColor.red));
-                bag.Add(new Tile(TileColor.white));
-                bag.Add(new Tile(TileColor.yellow));
-                bag.Add(new Tile(TileColor.black));
+                bag.Add(new Tile(TileColor.Blue));
+                bag.Add(new Tile(TileColor.Red));
+                bag.Add(new Tile(TileColor.White));
+                bag.Add(new Tile(TileColor.Yellow));
+                bag.Add(new Tile(TileColor.Black));
             }
 
             centerOfTable.Add(new Tile(TileColor.FirstPlayer));
@@ -60,61 +58,6 @@ namespace AzulAI
             for (int i = 0; i < factoryCount; i++ )
             {
                 factories.Add(new Factory());
-            }
-
-            //Generate tile key
-            tileKey = new Tile[5, 5];
-            for (int row = 0; row < 5; row++ )
-            {
-                switch (row)
-                {
-                    case 0:
-                        {
-                            tileKey[row, 0] = new Tile(TileColor.blue);
-                            tileKey[row, 1] = new Tile(TileColor.yellow);
-                            tileKey[row, 2] = new Tile(TileColor.red);
-                            tileKey[row, 3] = new Tile(TileColor.black);
-                            tileKey[row, 4] = new Tile(TileColor.white);
-                            break;
-                        }
-                    case 1:
-                        {
-                            tileKey[row, 1] = new Tile(TileColor.blue);
-                            tileKey[row, 2] = new Tile(TileColor.yellow);
-                            tileKey[row, 3] = new Tile(TileColor.red);
-                            tileKey[row, 4] = new Tile(TileColor.black);
-                            tileKey[row, 0] = new Tile(TileColor.white);
-                            break;
-                        }
-                    case 2:
-                        {
-                            tileKey[row, 2] = new Tile(TileColor.blue);
-                            tileKey[row, 3] = new Tile(TileColor.yellow);
-                            tileKey[row, 4] = new Tile(TileColor.red);
-                            tileKey[row, 0] = new Tile(TileColor.black);
-                            tileKey[row, 1] = new Tile(TileColor.white);
-                            break;
-                        }
-                    case 3:
-                        {
-                            tileKey[row, 3] = new Tile(TileColor.blue);
-                            tileKey[row, 4] = new Tile(TileColor.yellow);
-                            tileKey[row, 0] = new Tile(TileColor.red);
-                            tileKey[row, 1] = new Tile(TileColor.black);
-                            tileKey[row, 2] = new Tile(TileColor.white);
-                            break;
-                        }
-                    case 4:
-                        {
-                            tileKey[row, 4] = new Tile(TileColor.blue);
-                            tileKey[row, 0] = new Tile(TileColor.yellow);
-                            tileKey[row, 1] = new Tile(TileColor.red);
-                            tileKey[row, 2] = new Tile(TileColor.black);
-                            tileKey[row, 3] = new Tile(TileColor.white);
-                            break;
-                        }
-                }
-
             }
 
             //Provide all players with a link
@@ -174,7 +117,7 @@ namespace AzulAI
             {
                 foreach (Tile t in box)
                 {
-                    if (t.color != TileColor.FirstPlayer)
+                    if (t.Color != TileColor.FirstPlayer)
                     {
                         bag.Add(t);
                     }
@@ -304,7 +247,7 @@ namespace AzulAI
                     {
                         pointsEarned++;
 
-                        var col = ColumnOfTileColor(row, line.Color);
+                        var col = p.Wall.ColumnOfTileColor(row, line.Color);
 
                         var tiles = line.Clear();
                         p.Wall[row, col] = tiles.First();
@@ -312,7 +255,7 @@ namespace AzulAI
                         box.AddRange(tiles.Skip(1));
 
                         //Check for adjacency bonuses
-                        pointsEarned += p.AdjacentTiles(row, col);
+                        pointsEarned += p.Wall.AdjacentTiles(row, col);
                     }
                 }
                 p.score += pointsEarned;
@@ -330,9 +273,9 @@ namespace AzulAI
                 if(lastRound)
                 {
                     int bonus = 0;
-                    bonus += p.FullColumnCount() * 7;
-                    bonus += p.FullRowCount() * 2;
-                    bonus += p.FullSetCount() * 10;
+                    bonus += p.Wall.FullColumnCount() * 7;
+                    bonus += p.Wall.FullRowCount() * 2;
+                    bonus += p.Wall.FullSetCount() * 10;
                     p.score += bonus;
                 }
             }
@@ -362,7 +305,7 @@ namespace AzulAI
                             bool addColor = true;
                             foreach (TileColor tc in availibleColors)
                             {
-                                if (tc == factories[f].tiles[i].color)
+                                if (tc == factories[f].tiles[i].Color)
                                 {
                                     addColor = false;
                                 }
@@ -370,7 +313,7 @@ namespace AzulAI
 
                             if (addColor)
                             {
-                                availibleColors.Add(factories[f].tiles[i].color);
+                                availibleColors.Add(factories[f].tiles[i].Color);
                             }
                         }
                     }
@@ -392,7 +335,7 @@ namespace AzulAI
                         {
                             if(factories[f].tiles[i] != null)
                             {
-                                if (factories[f].tiles[i].color == tc)
+                                if (factories[f].tiles[i].Color == tc)
                                     tileCount++;
                             }
                         }
@@ -414,7 +357,7 @@ namespace AzulAI
                     bool colorFound = false;
                     foreach (TileColor tc in colorsInCenterOfTable)
                     {
-                        if (tc == t.color)
+                        if (tc == t.Color)
                         {
                             colorFound = true;
                             break;
@@ -423,9 +366,9 @@ namespace AzulAI
 
                     if (colorFound == false)
                     {
-                        colorsInCenterOfTable.Add(t.color);
+                        colorsInCenterOfTable.Add(t.Color);
                         //Flag if first player tile is still in place
-                        if (t.color == TileColor.FirstPlayer)
+                        if (t.Color == TileColor.FirstPlayer)
                         {
                             hasFirstPlayerPenalty = true;
                         }
@@ -466,7 +409,7 @@ namespace AzulAI
                 {
                     //Assign requested tiles to the appropriate row on the player's board
                     var tile = factory.tiles[i];
-                    if (tile != null && tile.color == move.color)
+                    if (tile != null && tile.Color == move.color)
                     {
                         if (move.rowIdx >= 0)
                         {
@@ -505,7 +448,7 @@ namespace AzulAI
                 //Take the first player tile if present
                 if (move.hasFirstPlayerPenalty)
                 {
-                    var firstPlayerTile = centerOfTable.Find(tile => tile.color == TileColor.FirstPlayer);
+                    var firstPlayerTile = centerOfTable.Find(tile => tile.Color == TileColor.FirstPlayer);
                     TileToFloorLine(firstPlayerTile, activePlayer);
                     centerOfTable.Remove(firstPlayerTile);
                     startingPlayer = activePlayer;
@@ -515,7 +458,7 @@ namespace AzulAI
                 List<Tile> toRemove = new List<Tile>();
                 foreach (Tile t in centerOfTable)
                 {
-                    if (t != null && t.color == move.color)
+                    if (t != null && t.Color == move.color)
                     {
                         if (move.rowIdx >= 0)
                         {
@@ -547,7 +490,7 @@ namespace AzulAI
                     {
                         foreach (Tile pt in centerOfTable)
                         {
-                            if (pt != null && t.color == pt.color)
+                            if (pt != null && t.Color == pt.Color)
                             {
                                 centerOfTable.Remove(pt);
                                 break;
@@ -605,7 +548,7 @@ namespace AzulAI
                 //Check wall to see if tile of color c is already placed on this row
                 if(p.PatternLines[row].IsEmpty)
                 {
-                    var col = ColumnOfTileColor(row, c);
+                    var col = p.Wall.ColumnOfTileColor(row, c);
                     if(p.Wall[row, col] != null)
                     {
                         canMatchInRow = false;
@@ -711,14 +654,14 @@ namespace AzulAI
             //Attempt to break ties
             if(winners.Count > 1)
             {
-                winners.Sort((x, y) => x.FullRowCount().CompareTo(y.FullRowCount()));
+                winners.Sort((x, y) => x.Wall.FullRowCount().CompareTo(y.Wall.FullRowCount()));
                 
-                int curMaxRows = winners[0].FullRowCount();
+                int curMaxRows = winners[0].Wall.FullRowCount();
                 int tieIdx = 0;
 
                 for(int i = 0; i < winners.Count; i++)
                 {
-                    if(winners[i].FullRowCount() == curMaxRows)
+                    if(winners[i].Wall.FullRowCount() == curMaxRows)
                     {
                         tieIdx = i;
                         break;
@@ -737,34 +680,13 @@ namespace AzulAI
             int value = 0;
             int tiles = 0;
 
-            Tile[,] tempGrid = p.Wall.Clone() as Tile[,];
-
-            //Add tiles that will be put on wall at end of turn to temporary wall
-            int row = 0;
-            foreach (var line in p.PatternLines)
-            {
-                if (line.IsFull)
-                {
-                    TileColor tc = line.Color;
-                    for (int col = 0; col < 5; col++)
-                    {
-                        if (tileKey[col, row].color == tc)
-                        {
-                            tempGrid[col, row] = line.Peak();
-                            break;
-                        }
-                    }
-                }
-                row++;
-            }
-
             //Determine count of tiles to be pulled. For moves pulling from a factory.
             if (m.factoryIdx >= 0)
             {
                 var factory = factories[m.factoryIdx];
                 for (int i = 0; i < 4; i++)
                 {
-                    if (factory.tiles[i]?.color == m.color)
+                    if (factory.tiles[i]?.Color == m.color)
                         tiles++;
                 }
             }
@@ -773,7 +695,7 @@ namespace AzulAI
             {
                 foreach(Tile t in centerOfTable)
                 {
-                    if(t?.color == m.color)
+                    if(t?.Color == m.color)
                     {
                         tiles++;
                     }
@@ -789,23 +711,16 @@ namespace AzulAI
                     value++;
                     tiles -= availability;
 
-                    //Determine wall location where tile will be placed
-                    int placedColumn = 0;
-                    for (int x = 0; x < 5; x++)
-                    {
-                        if (tileKey[x, m.rowIdx].color == m.color)
-                        {
-                            value += p.AdjacentTiles(x, m.rowIdx);
-                            placedColumn = x;
-                            break;
-                        }
-                    }
+                    //Determine grid location where tile will be placed
+                    int placedColumn = p.Wall.ColumnOfTileColor(m.rowIdx, m.color);
+
+                    value += p.TilesThatWillBeAdjacent(m.rowIdx, placedColumn);
 
                     //Determine if row or column bonus would be gained
                     bool horizontalBonus = true;
-                    for(int x = 0; x < 5; x++)
+                    for(int col = 0; col < 5; col++)
                     {
-                        if(tempGrid[x, m.rowIdx] == null && tileKey[x, m.rowIdx].color != m.color)
+                        if(p.Wall[m.rowIdx, col] == null && p.Wall.TileKey[m.rowIdx, col] != m.color)
                         {
                             horizontalBonus = false;
                             break;
@@ -813,9 +728,11 @@ namespace AzulAI
                     }
 
                     bool verticalBonus = true;
-                    for (int y = 0; y < 5; y++)
+                    for (int r = 0; r < 5; r++)
                     {
-                        if (tempGrid[placedColumn, y] == null && tileKey[placedColumn, y].color != m.color)
+                        if (p.Wall[r, placedColumn] == null 
+                            && (p.Wall.TileKey[r, placedColumn] != m.color
+                                || !p.PatternLines[r].IsFull))
                         {
                             verticalBonus = false;
                             break;
@@ -825,15 +742,15 @@ namespace AzulAI
                     //Determine if set bonus would be gained
                     bool setBonus = m.color != TileColor.FirstPlayer;
                     var keyCoords = new List<KeyValuePair<int, int>>(5);
-                    for(int i = 0; i < 5; i++)
+                    for(int r = 0; r < 5; r++)
                     {
-                        for(int j = 0; j < 5; j++)
+                        for(int c = 0; c < 5; c++)
                         {
-                            if(tileKey[i, j].color == m.color)
+                            if(p.Wall.TileKey[r, c] == m.color)
                             {
-                                if(i != placedColumn && j != m.rowIdx)
+                                if(r != m.rowIdx && c != placedColumn)
                                 {
-                                    keyCoords.Add(new KeyValuePair<int, int>(i, j));
+                                    keyCoords.Add(new KeyValuePair<int, int>(r, c));
                                 }
                             }
                         }
@@ -841,7 +758,8 @@ namespace AzulAI
 
                     foreach(KeyValuePair<int, int> coords in keyCoords)
                     {
-                        if(tempGrid[coords.Key, coords.Value] == null)
+                        if(p.Wall[coords.Key, coords.Value] == null
+                            && !p.PatternLines[coords.Key].IsFull)
                         {
                             setBonus = false;
                             break;
@@ -893,7 +811,7 @@ namespace AzulAI
             {
                 foreach(Tile t in centerOfTable)
                 {
-                    if (t?.color == m.color)
+                    if (t?.Color == m.color)
                         tileCount++;
                 }
             }
@@ -901,7 +819,7 @@ namespace AzulAI
             {
                 for (int i = 0; i < 4; i++)
                 {
-                    if (factories[m.factoryIdx].tiles[i]?.color == m.color)
+                    if (factories[m.factoryIdx].tiles[i]?.Color == m.color)
                         tileCount++;
                 }
             }
@@ -926,29 +844,29 @@ namespace AzulAI
                 {
                     if(p.Wall[row, col] != null)
                     {
-                        switch(p.Wall[row, col].color)
+                        switch(p.Wall[row, col].Color)
                         {
-                            case TileColor.black:
+                            case TileColor.Black:
                                 {
                                     blackCount++;
                                     break;
                                 }
-                            case TileColor.blue:
+                            case TileColor.Blue:
                                 {
                                     blueCount++;
                                     break;
                                 }
-                            case TileColor.red:
+                            case TileColor.Red:
                                 {
                                     redCount++;
                                     break;
                                 }
-                            case TileColor.white:
+                            case TileColor.White:
                                 {
                                     whiteCount++;
                                     break;
                                 }
-                            case TileColor.yellow:
+                            case TileColor.Yellow:
                                 {
                                     yellowCount++;
                                     break;
@@ -958,35 +876,16 @@ namespace AzulAI
                 }
             }
 
-            colorCounts.Add(new KeyValuePair<TileColor, int>(TileColor.black, blackCount));
-            colorCounts.Add(new KeyValuePair<TileColor, int>(TileColor.blue, blueCount));
-            colorCounts.Add(new KeyValuePair<TileColor, int>(TileColor.red, redCount));
-            colorCounts.Add(new KeyValuePair<TileColor, int>(TileColor.white, whiteCount));
-            colorCounts.Add(new KeyValuePair<TileColor, int>(TileColor.yellow, yellowCount));
+            colorCounts.Add(new KeyValuePair<TileColor, int>(TileColor.Black, blackCount));
+            colorCounts.Add(new KeyValuePair<TileColor, int>(TileColor.Blue, blueCount));
+            colorCounts.Add(new KeyValuePair<TileColor, int>(TileColor.Red, redCount));
+            colorCounts.Add(new KeyValuePair<TileColor, int>(TileColor.White, whiteCount));
+            colorCounts.Add(new KeyValuePair<TileColor, int>(TileColor.Yellow, yellowCount));
 
             colorCounts.Sort((x, y) => x.Value.CompareTo(y.Value));
             colorCounts.Reverse();
 
             return colorCounts;
-        }
-
-        //Returns the color of tile that gets placed at the provided coordinates
-        public TileColor TileColorAtLocation(int row, int col)
-        {
-            return tileKey[row, col].color;
-        }
-
-        //Returns the column the color belongs in for the given row
-        public int ColumnOfTileColor(int row, TileColor color)
-        {
-            for (int col = 0; col < 5; col++)
-            {
-                if (tileKey[row, col].color == color)
-                {
-                    return col;
-                }
-            }
-            throw new InvalidOperationException(color.ToString());
         }
 
         //Returns whether or not the last round condition has been met
@@ -1015,12 +914,6 @@ namespace AzulAI
                 box.Add(t);
             }
         }
-
-        //-----------------------------------------------------------------
-        //              Player Data Acquisition Functions
-        //-----------------------------------------------------------------
-        
-
     }
 
     public class GameResults

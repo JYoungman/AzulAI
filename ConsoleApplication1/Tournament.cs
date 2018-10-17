@@ -45,7 +45,7 @@ namespace AzulAI
                 foreach (var winner in gameResult.winners)
                 {
                     wins[Players.IndexOf(winner)]++;
-                    UpdateHeatMap(heatMap, winner.Wall);
+                    UpdateHeatMap(heatMap, winner.Wall.Tiles);
                 }
 
                 for (int j = 0; j < Players.Count; j++)

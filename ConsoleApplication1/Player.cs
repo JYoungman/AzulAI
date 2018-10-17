@@ -12,7 +12,7 @@ namespace AzulAI
         public int totalAppliedPenalties = 0; // Possibly lower as your not allowed to go negative.
         public bool legalMovesAvailible = true;
 
-        public Tile[,] Wall { get; set; }
+        public Wall Wall { get; set; }
         public PatternLine[] PatternLines { get; set; }
         public FloorLine FloorLine { get; set; }
 
@@ -30,7 +30,7 @@ namespace AzulAI
             totalEarnedPenalties = 0;
             legalMovesAvailible = true;
 
-            Wall = new Tile[5, 5];
+            Wall = new Wall();
 
             PatternLines = new PatternLine[5];
             for (int i = 0; i < 5; i++)
@@ -53,17 +53,19 @@ namespace AzulAI
             return "Default AI";
         }
 
-        //Returns the sum of adjacency chains starting at row, col in Wall. Used for scoring.
-        public int AdjacentTiles(int row, int col)
+        // Like Wall.AdjacentTiles but accounts for full Pattern Lines what will get installed this round
+        internal int TilesThatWillBeAdjacent(int row, int col)
         {
-            int combo = 0;
-
-            //Vertical checks
+            // Rows aren't any different, you can only add one item to a row per round.
+            var total = Wall.AdjacentRowTiles(row, col);
+            
+            // Vertical checks, account for full pattern lines
             for (var r = row + 1; r < 5; r++)
             {
-                if (Wall[r, col] != null)
+                if (Wall[r, col] != null
+                    || (PatternLines[r].IsFull && PatternLines[r].Color == Wall.TileKey[r, col]))
                 {
-                    combo++;
+                    total++;
                 }
                 else
                 {
@@ -72,9 +74,10 @@ namespace AzulAI
             }
             for (var r = row - 1; r >= 0; r--)
             {
-                if (Wall[r, col] != null)
+                if (Wall[r, col] != null
+                    || (PatternLines[r].IsFull && PatternLines[r].Color == Wall.TileKey[r, col]))
                 {
-                    combo++;
+                    total++;
                 }
                 else
                 {
@@ -82,130 +85,7 @@ namespace AzulAI
                 }
             }
 
-            //Horizontal checks
-            for (var c = col + 1; c < 5; c++)
-            {
-                if (Wall[row, c] != null)
-                {
-                    combo++;
-                }
-                else
-                {
-                    break;
-                }
-            }
-            for (var c = col - 1; c >= 0; c--)
-            {
-                if (Wall[row, c] != null)
-                {
-                    combo++;
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            return combo;
-        }
-
-        public int FullColumnCount()
-        {
-            int fullColumns = 0;
-
-            for (int col = 0; col < 5; col++)
-            {
-                bool isFull = true;
-                for (int row = 0; row < 5; row++ )
-                {
-                    if(Wall[row, col] == null)
-                    {
-                        isFull = false;
-                        break;
-                    }
-                }
-
-                if (isFull)
-                    fullColumns++;
-            }
-
-            return fullColumns;
-        }
-
-        public int FullRowCount()
-        {
-            int fullRows = 0;
-
-            for (int row = 0; row < 5; row++)
-            {
-                bool isFull = true;
-
-                for (int col = 0; col < 5; col++)
-                {
-                    if(Wall[row, col] == null)
-                    {
-                        isFull = false;
-                        break;
-                    }
-                }
-
-                if (isFull)
-                    fullRows++;
-            }
-
-                return fullRows;
-        }
-
-        public int FullSetCount()
-        {
-            int fullSets = 0;
-            int[] colorCounts = new int[5];
-
-            for (int row = 0; row < 5; row++ )
-            {
-                for(int col = 0; col < 5; col++)
-                {
-                    if(Wall[row, col] != null)
-                    {
-                        switch(Wall[row, col].color)
-                        {
-                            case TileColor.blue:
-                                {
-                                    colorCounts[0]++;
-                                    break;
-                                }
-                            case TileColor.yellow:
-                                {
-                                    colorCounts[1]++;
-                                    break;
-                                }
-                            case TileColor.red:
-                                {
-                                    colorCounts[2]++;
-                                    break;
-                                }
-                            case TileColor.white:
-                                {
-                                    colorCounts[3]++;
-                                    break;
-                                }
-                            case TileColor.black:
-                                {
-                                    colorCounts[4]++;
-                                    break;
-                                }
-                        }
-                    }
-                }
-            }
-
-            for (int k = 0; k < 5; k++ )
-            {
-                if (colorCounts[k] == 5)
-                    fullSets++;
-            }
-
-            return fullSets;
+            return total;
         }
     }
 }

@@ -56,7 +56,7 @@ namespace AzulAI
                     {
                         if(Wall[row, kvp.Key] == null)
                         {
-                            availibleColors.Add(new KeyValuePair<TileColor,int>(gameManager.TileColorAtLocation(row, kvp.Key), row));
+                            availibleColors.Add(new KeyValuePair<TileColor,int>(Wall.TileColorAtLocation(row, kvp.Key), row));
                         }
                     }
 
