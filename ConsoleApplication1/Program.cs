@@ -12,11 +12,15 @@ namespace AzulAI
         {
             List<Player> AIs = new List<Player>();
             // AIs.Add(new PureRandom());
-            AIs.Add(new BGCplayer());
+            //AIs.Add(new BGCplayer());
             // AIs.Add(new QuickEndPlayer());
-            AIs.Add(new SimpleGreedyPlayer());
+            //AIs.Add(new SimpleGreedyPlayer());
+            //AIs.Add(new SimpleGreedyPlayer());
+            AIs.Add(new BonusGreedyPlayer());
             AIs.Add(new CentrestGreedyPlayer());
-            AIs.Add(new BonusSeeker());
+            AIs.Add(new BonusGreedyPlayer());
+            AIs.Add(new CentrestGreedyPlayer());
+            //AIs.Add(new BonusSeeker());
             //AIs.Add(new SimpleGreedyPlayer());
 
             var rounds = 1000;

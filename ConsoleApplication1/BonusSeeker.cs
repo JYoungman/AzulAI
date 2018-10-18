@@ -44,6 +44,7 @@ namespace AzulAI
             }
 
             IEnumerable<KeyValuePair<int, int>> completeColumns = columnCompletion.Where(pair => pair.Value != 0);
+            completeColumns = completeColumns.Where(pair => pair.Value != 5);
 
             if(completeColumns.Count() != 0)
             {
