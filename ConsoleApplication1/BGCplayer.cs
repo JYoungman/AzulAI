@@ -20,14 +20,14 @@ namespace AzulAI
             //First priority: Fifth row
             if(PatternLines[4].IsEmpty)
             {
-                IEnumerable<Move> lastRowMoves = availibleMoves.Where(x => x.rowIdx == 4);
+                IEnumerable<Move> lastRowMoves = availibleMoves.Where(x => x.RowIdx == 4);
                 int highestCount = 0;
                 
                 foreach(Move m in lastRowMoves)
                 {
-                    if (m.factoryIdx > -1)
+                    if (m.FactoryIdx > -1)
                     {
-                        int tilesGained = gameManager.TilesGainedByMove(m);
+                        int tilesGained = m.Count;
                         highestCount = Math.Max(highestCount, tilesGained);
 
                         //In the rare case of a factory with four availible tiles, take it
@@ -41,18 +41,18 @@ namespace AzulAI
 
                 foreach(Move m in lastRowMoves)
                 {
-                    if (gameManager.TilesGainedByMove(m) == highestCount)
+                    if (m.Count == highestCount)
                         highValMoves.Add(m);
                 }
-                highValMoves.Sort((x, y) => x.color.CompareTo(y.color));
+                highValMoves.Sort((x, y) => x.Color.CompareTo(y.Color));
 
-                List<KeyValuePair<TileColor, int>> placedTiles = gameManager.PlacedTilesByColor(this);
+                List<KeyValuePair<TileColor, int>> placedTiles = Wall.PlacedTilesByColor();
 
                 foreach(KeyValuePair<TileColor, int> kvp in placedTiles)
                 {
                     foreach(Move m in highValMoves)
                     {
-                        if (m.color == kvp.Key)
+                        if (m.Color == kvp.Key)
                             return m;
                     }
                 }
@@ -60,8 +60,8 @@ namespace AzulAI
             else
             {
                 int tilesNeeded = PatternLines[4].Availability;
-                IEnumerable<Move> lastRowMoves = availibleMoves.Where(x => x.rowIdx == 4);
-                lastRowMoves = lastRowMoves.Where(x => gameManager.TilesGainedByMove(x) == tilesNeeded);
+                IEnumerable<Move> lastRowMoves = availibleMoves.Where(x => x.RowIdx == 4);
+                lastRowMoves = lastRowMoves.Where(x => x.Count == tilesNeeded);
                 if (lastRowMoves.Any())
                 {
                     return lastRowMoves.First();
@@ -71,14 +71,14 @@ namespace AzulAI
             //Second priority: Fourth row
             if (PatternLines[3].IsEmpty)
             {
-                IEnumerable<Move> lastRowMoves = availibleMoves.Where(x => x.rowIdx == 3);
+                IEnumerable<Move> lastRowMoves = availibleMoves.Where(x => x.RowIdx == 3);
                 int highestCount = 0;
 
                 foreach (Move m in lastRowMoves)
                 {
-                    if (m.factoryIdx > -1)
+                    if (m.FactoryIdx > -1)
                     {
-                        int tilesGained = gameManager.TilesGainedByMove(m);
+                        int tilesGained = m.Count;
                         highestCount = Math.Max(highestCount, tilesGained);
 
                         //In the rare case of a factory with four availible tiles, take it
@@ -92,18 +92,18 @@ namespace AzulAI
 
                 foreach (Move m in lastRowMoves)
                 {
-                    if (gameManager.TilesGainedByMove(m) == highestCount)
+                    if (m.Count == highestCount)
                         highValMoves.Add(m);
                 }
-                highValMoves.Sort((x, y) => x.color.CompareTo(y.color));
+                highValMoves.Sort((x, y) => x.Color.CompareTo(y.Color));
 
-                List<KeyValuePair<TileColor, int>> placedTiles = gameManager.PlacedTilesByColor(this);
+                List<KeyValuePair<TileColor, int>> placedTiles = Wall.PlacedTilesByColor();
 
                 foreach (KeyValuePair<TileColor, int> kvp in placedTiles)
                 {
                     foreach (Move m in highValMoves)
                     {
-                        if (m.color == kvp.Key)
+                        if (m.Color == kvp.Key)
                             return m;
                     }
                 }
@@ -111,8 +111,8 @@ namespace AzulAI
             else
             {
                 int tilesNeeded = PatternLines[3].Availability;
-                IEnumerable<Move> lastRowMoves = availibleMoves.Where(x => x.rowIdx == 3);
-                lastRowMoves = lastRowMoves.Where(x => gameManager.TilesGainedByMove(x) == tilesNeeded);
+                IEnumerable<Move> lastRowMoves = availibleMoves.Where(x => x.RowIdx == 3);
+                lastRowMoves = lastRowMoves.Where(x => x.Count == tilesNeeded);
                 if (lastRowMoves.Any())
                 {
                     return lastRowMoves.First();
@@ -123,22 +123,22 @@ namespace AzulAI
             if (PatternLines[0].IsEmpty)
             {
                 //Get moves that exactly fill row
-                IEnumerable<Move> thisRowMoves = availibleMoves.Where(x => x.rowIdx == 0);
+                IEnumerable<Move> thisRowMoves = availibleMoves.Where(x => x.RowIdx == 0);
                 List<Move> rowFillMoves = new List<Move>();
                 foreach(Move m in thisRowMoves)
                 {
-                    if (gameManager.TilesGainedByMove(m) == 1)
+                    if (m.Count == 1)
                         rowFillMoves.Add(m);
                 }
 
                 //Prioritize colors already on the board
-                List<KeyValuePair<TileColor, int>> placedTiles = gameManager.PlacedTilesByColor(this);
+                List<KeyValuePair<TileColor, int>> placedTiles = Wall.PlacedTilesByColor();
 
                 foreach (KeyValuePair<TileColor, int> kvp in placedTiles)
                 {
                     foreach (Move m in rowFillMoves)
                     {
-                        if (m.color == kvp.Key)
+                        if (m.Color == kvp.Key)
                             return m;
                     }
                 }
@@ -148,22 +148,22 @@ namespace AzulAI
             if (PatternLines[0].IsEmpty)
             {
                 //Get moves that exactly fill row
-                IEnumerable<Move> thisRowMoves = availibleMoves.Where(x => x.rowIdx == 1);
+                IEnumerable<Move> thisRowMoves = availibleMoves.Where(x => x.RowIdx == 1);
                 List<Move> rowFillMoves = new List<Move>();
                 foreach (Move m in thisRowMoves)
                 {
-                    if (gameManager.TilesGainedByMove(m) == 2)
+                    if (m.Count == 2)
                         rowFillMoves.Add(m);
                 }
 
                 //Prioritize colors already on the board
-                List<KeyValuePair<TileColor, int>> placedTiles = gameManager.PlacedTilesByColor(this);
+                List<KeyValuePair<TileColor, int>> placedTiles = Wall.PlacedTilesByColor();
 
                 foreach (KeyValuePair<TileColor, int> kvp in placedTiles)
                 {
                     foreach (Move m in rowFillMoves)
                     {
-                        if (m.color == kvp.Key)
+                        if (m.Color == kvp.Key)
                             return m;
                     }
                 }

@@ -23,16 +23,16 @@ namespace AzulAI
         // Give a subpoint preference to the central columns
         private double CalculateCentrality(Move move)
         {
-            if (move.color == TileColor.FirstPlayer)
+            if (move.Color == TileColor.FirstPlayer)
             {
                 return 0;
             }
-            if (move.rowIdx == -1)
+            if (move.RowIdx == -1)
             {
                 return 0;
             }
 
-            var column = Wall.ColumnOfTileColor(move.rowIdx, move.color);
+            var column = Wall.ColumnOfTileColor(move.RowIdx, move.Color);
             switch (column)
             {
                 case 0:

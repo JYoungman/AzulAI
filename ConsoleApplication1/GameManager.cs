@@ -11,9 +11,9 @@ namespace AzulAI
         List<Player> players;
         Player startingPlayer;
 
-        List<Tile> bag;
-        List<Tile> box;
-        List<Tile> centerOfTable;
+        List<Tile> bag = new List<Tile>();
+        List<Tile> box = new List<Tile>();
+        CenterOfTable centerOfTable = new CenterOfTable();
 
         List<Factory> factories;
 
@@ -27,11 +27,12 @@ namespace AzulAI
 
         public GameManager(List<Player> playerList)
         {
+            if (playerList.Count > 4 || playerList.Count < 2)
+            {
+                throw new ArgumentOutOfRangeException(nameof(playerList));
+            }
+
             //Allocate lists
-            bag = new List<Tile>();
-            box = new List<Tile>();
-            centerOfTable = new List<Tile>();
-            factories = new List<Factory>();
 
             //Generate tiles
             for (int i = 0; i < 20; i++)
@@ -49,11 +50,8 @@ namespace AzulAI
             startingPlayer = players[0];
 
             //Generate Factories
-            int factoryCount = 5;
-            if (players.Count == 3)
-                factoryCount = 7;
-            else if (players.Count == 4)
-                factoryCount = 9;
+            int factoryCount = players.Count * 2 + 1;
+            factories = new List<Factory>(factoryCount);
 
             for (int i = 0; i < factoryCount; i++ )
             {
@@ -69,8 +67,6 @@ namespace AzulAI
 
             //Create random number generator
             randNumGen = new Random();
-
-            int bagCount = bag.Count;
         }
 
         //-----------------------------------------------------------------
@@ -97,19 +93,10 @@ namespace AzulAI
             if (roundCount != 0)
             {
                 Debug.Assert(!centerOfTable.Any(), "There shouldn't be any tiles left.");
-                centerOfTable.Clear();
                 //Dump excess factory tiles into box
                 foreach(Factory f in factories)
                 {
-                    for(int i = 0; i < 4; i++)
-                    {
-                        if(f.tiles[i] != null)
-                        {
-                            Debug.Assert(false, "There shouldn't be any tiles left.");
-                            box.Add(f.tiles[i]);
-                            f.tiles[i] = null;
-                        }
-                    }
+                    Debug.Assert(!f.Tiles.Any(), "There shouldn't be any tiles left.");
                 }
             }
 
@@ -137,9 +124,8 @@ namespace AzulAI
                     if (bag.Count > 0)
                     {
                         int randIdx = randNumGen.Next(0, bag.Count);
-                        f.tiles[i] = bag[randIdx];
+                        f.Add(bag[randIdx]);
                         bag.RemoveAt(randIdx);
-                        f.availible = true;
                     }
                     else
                     {
@@ -180,7 +166,7 @@ namespace AzulAI
                 if(moveCheck.Any())
                 {
                     p.legalMovesAvailible = true;
-                    if (moveCheck.Where(move => move.rowIdx != -1).Any())
+                    if (moveCheck.Where(move => move.RowIdx != -1).Any())
                     {
                         movesAvailible = true;
                     }
@@ -212,7 +198,7 @@ namespace AzulAI
                         {
                             var move = p.PerformMove(legalMoves);
                             ExecuteMove(move, p);
-                            progressMade |= move.rowIdx != -1;
+                            progressMade |= move.RowIdx != -1;
                             //Check for game end condition
                             lastRound = MoveEndsGame(p);
                         }
@@ -294,103 +280,47 @@ namespace AzulAI
             //Iterate through Factories, creating moves for each row its colors can be placed in
             for (int f = 0; f < factories.Count; f++)
             {
-                if (factories[f].availible)
+                if (factories[f].Availible)
                 {
-                    //Generate list of availible colors
-                    List<TileColor> availibleColors = new List<TileColor>();
-                    for (int i = 0; i < 4; i++)
-                    {
-                        if (factories[f].tiles[i] != null)
-                        {
-                            bool addColor = true;
-                            foreach (TileColor tc in availibleColors)
-                            {
-                                if (tc == factories[f].tiles[i].Color)
-                                {
-                                    addColor = false;
-                                }
-                            }
-
-                            if (addColor)
-                            {
-                                availibleColors.Add(factories[f].tiles[i].Color);
-                            }
-                        }
-                    }
-
                     //Look for legal places to place tiles of availible colors
-                    foreach (TileColor tc in availibleColors)
+                    foreach (TileColor tc in factories[f].GetColors())
                     {
                         List<int> availibleRows = LegalRowsForColor(tc, activePlayer);
+
+                        //Generate moves for moving directly to floor line
+                        int tileCount = factories[f].CountOf(tc); // TODO add this count to the move
 
                         //Generate move data
                         foreach (int row in availibleRows)
                         {
-                            legalMoves.Add(new Move(f, row, tc, false));
+                            legalMoves.Add(new Move(f, row, tc, tileCount, false));
                         }
 
-                        //Generate moves for moving directly to floor line
-                        int tileCount = 0;
-                        for (int i = 0; i < factories[f].tiles.Length; i++ )
-                        {
-                            if(factories[f].tiles[i] != null)
-                            {
-                                if (factories[f].tiles[i].Color == tc)
-                                    tileCount++;
-                            }
-                        }
-
-                        legalMoves.Add(new Move(f, -1, tc, false));
+                        legalMoves.Add(new Move(f, -1, tc, tileCount, false));
                     }
                 }
             }
 
             //Create moves for pulling from the center of the table
-            bool hasFirstPlayerPenalty = false;
-            
-            //Generate availible color list
-            List<TileColor> colorsInCenterOfTable = new List<TileColor>();
-            foreach(Tile t in centerOfTable)
-            {
-                if (t != null)
-                {
-                    bool colorFound = false;
-                    foreach (TileColor tc in colorsInCenterOfTable)
-                    {
-                        if (tc == t.Color)
-                        {
-                            colorFound = true;
-                            break;
-                        }
-                    }
-
-                    if (colorFound == false)
-                    {
-                        colorsInCenterOfTable.Add(t.Color);
-                        //Flag if first player tile is still in place
-                        if (t.Color == TileColor.FirstPlayer)
-                        {
-                            hasFirstPlayerPenalty = true;
-                        }
-                    }
-                }
-            }
+            bool hasFirstPlayerPenalty = centerOfTable.HasFirstPlayerTile;
 
             //Look for legal places to place tiles of availible colors
-            foreach(TileColor tc in colorsInCenterOfTable)
+            foreach(TileColor tc in centerOfTable.GetColors())
             {
                 List<int> availibleRows = LegalRowsForColor(tc, activePlayer);
+
+                int tileCount = centerOfTable.CountOf(tc);
 
                 //Generate move data
                 foreach (int row in availibleRows)
                 {
-                    legalMoves.Add(new Move(-1, row, tc, hasFirstPlayerPenalty));
+                    legalMoves.Add(new Move(-1, row, tc, tileCount, hasFirstPlayerPenalty));
                 }
 
                 //Generate moves for moving directly to floor line
                 if (tc != TileColor.FirstPlayer)
                 {
-                    legalMoves.Add(new Move(-1, -1, tc, hasFirstPlayerPenalty));
+                    legalMoves.Add(new Move(-1, -1, tc, tileCount, hasFirstPlayerPenalty));
                 }
             }
 
@@ -400,20 +330,18 @@ namespace AzulAI
         void ExecuteMove(Move move, Player activePlayer)
         {
             //Positive values represents a Factory to pull from
-            if (move.factoryIdx >= 0)
+            if (move.FactoryIdx >= 0)
             {
-                var factory = factories[move.factoryIdx];
-                factory.availible = false;
+                var factory = factories[move.FactoryIdx];
 
-                for (int i = 0; i < 4; i++)
+                foreach (var tile in factory)
                 {
                     //Assign requested tiles to the appropriate row on the player's board
-                    var tile = factory.tiles[i];
-                    if (tile != null && tile.Color == move.color)
+                    if (tile.Color == move.Color)
                     {
-                        if (move.rowIdx >= 0)
+                        if (move.RowIdx >= 0)
                         {
-                            var line = activePlayer.PatternLines[move.rowIdx];
+                            var line = activePlayer.PatternLines[move.RowIdx];
 
                             if (!line.IsFull)
                             {
@@ -432,74 +360,49 @@ namespace AzulAI
                         }
                     }
                     //Move remaining tiles into the center of the table
-                    else if (tile != null)
+                    else
                     {
                         centerOfTable.Add(tile);
                     }
                 }
-                
+
                 //Empty factory
-                for (int j = 0; j < 4; j++)
-                    factory.tiles[j] = null;
+                factory.Tiles.Clear();
             }
             //A negative factoryIdx value indicates player has chosen to pull from the center of the table
             else
             {
                 //Take the first player tile if present
-                if (move.hasFirstPlayerPenalty)
+                if (move.HasFirstPlayerPenalty)
                 {
-                    var firstPlayerTile = centerOfTable.Find(tile => tile.Color == TileColor.FirstPlayer);
+                    var firstPlayerTile = centerOfTable.Take(TileColor.FirstPlayer).Single();
                     TileToFloorLine(firstPlayerTile, activePlayer);
-                    centerOfTable.Remove(firstPlayerTile);
                     startingPlayer = activePlayer;
                 }
 
                 //Place the selected tiles in the indicated row
-                List<Tile> toRemove = new List<Tile>();
-                foreach (Tile t in centerOfTable)
+                foreach (Tile t in centerOfTable.Take(move.Color))
                 {
-                    if (t != null && t.Color == move.color)
+                    if (move.RowIdx >= 0)
                     {
-                        if (move.rowIdx >= 0)
+                        var line = activePlayer.PatternLines[move.RowIdx];
+                        if (!line.IsFull)
                         {
-                            var line = activePlayer.PatternLines[move.rowIdx];
-                            if (!line.IsFull)
-                            {
-                                line.Add(t);
-                            }
-                            //If there isn't room in the desired row, move remaining tiles to the floor line
-                            else
-                            {
-                                TileToFloorLine(t, activePlayer);
-                            }
+                            line.Add(t);
                         }
-                        //Negative row index in move indicates floor line as target row
+                        //If there isn't room in the desired row, move remaining tiles to the floor line
                         else
                         {
                             TileToFloorLine(t, activePlayer);
                         }
-
-                        //Remove the active tile from center of table
-                        toRemove.Add(t);
-                        //pool.Remove(t);
                     }
-                }
-                foreach(Tile t in toRemove)
-                {
-                    if (t != null)
+                    //Negative row index in move indicates floor line as target row
+                    else
                     {
-                        foreach (Tile pt in centerOfTable)
-                        {
-                            if (pt != null && t.Color == pt.Color)
-                            {
-                                centerOfTable.Remove(pt);
-                                break;
-                            }
-                        }
+                        TileToFloorLine(t, activePlayer);
                     }
                 }
             }
-
         }
 
         //-----------------------------------------------------------------
@@ -588,11 +491,7 @@ namespace AzulAI
             //Check factories
             foreach(Factory f in factories)
             {
-                for(int j = 0; j < 4; j++)
-                {
-                    if (f.tiles[j] != null)
-                        knownTiles++;
-                }
+                knownTiles += f.Tiles.Count;
             }
 
             //Check bag
@@ -678,33 +577,11 @@ namespace AzulAI
         public int ExpectedMoveValue(Move m, Player p)
         {
             int value = 0;
-            int tiles = 0;
+            int tiles = m.Count;
 
-            //Determine count of tiles to be pulled. For moves pulling from a factory.
-            if (m.factoryIdx >= 0)
+            if (m.RowIdx >= 0)
             {
-                var factory = factories[m.factoryIdx];
-                for (int i = 0; i < 4; i++)
-                {
-                    if (factory.tiles[i]?.Color == m.color)
-                        tiles++;
-                }
-            }
-            //For moves pulling from the center of the table
-            else
-            {
-                foreach(Tile t in centerOfTable)
-                {
-                    if(t?.Color == m.color)
-                    {
-                        tiles++;
-                    }
-                }
-            }
-
-            if (m.rowIdx >= 0)
-            {
-                var line = p.PatternLines[m.rowIdx];
+                var line = p.PatternLines[m.RowIdx];
                 var availability = line.Availability;
                 if (tiles >= availability)
                 {
@@ -712,15 +589,15 @@ namespace AzulAI
                     tiles -= availability;
 
                     //Determine grid location where tile will be placed
-                    int placedColumn = p.Wall.ColumnOfTileColor(m.rowIdx, m.color);
+                    int placedColumn = p.Wall.ColumnOfTileColor(m.RowIdx, m.Color);
 
-                    value += p.TilesThatWillBeAdjacent(m.rowIdx, placedColumn);
+                    value += p.TilesThatWillBeAdjacent(m.RowIdx, placedColumn);
 
                     //Determine if row or column bonus would be gained
                     bool horizontalBonus = true;
                     for(int col = 0; col < 5; col++)
                     {
-                        if(p.Wall[m.rowIdx, col] == null && p.Wall.TileKey[m.rowIdx, col] != m.color)
+                        if(p.Wall[m.RowIdx, col] == null && p.Wall.TileKey[m.RowIdx, col] != m.Color)
                         {
                             horizontalBonus = false;
                             break;
@@ -731,7 +608,7 @@ namespace AzulAI
                     for (int r = 0; r < 5; r++)
                     {
                         if (p.Wall[r, placedColumn] == null 
-                            && (p.Wall.TileKey[r, placedColumn] != m.color
+                            && (p.Wall.TileKey[r, placedColumn] != m.Color
                                 || !p.PatternLines[r].IsFull))
                         {
                             verticalBonus = false;
@@ -740,15 +617,15 @@ namespace AzulAI
                     }
 
                     //Determine if set bonus would be gained
-                    bool setBonus = m.color != TileColor.FirstPlayer;
+                    bool setBonus = m.Color != TileColor.FirstPlayer;
                     var keyCoords = new List<KeyValuePair<int, int>>(5);
                     for(int r = 0; r < 5; r++)
                     {
                         for(int c = 0; c < 5; c++)
                         {
-                            if(p.Wall.TileKey[r, c] == m.color)
+                            if(p.Wall.TileKey[r, c] == m.Color)
                             {
-                                if(r != m.rowIdx && c != placedColumn)
+                                if(r != m.RowIdx && c != placedColumn)
                                 {
                                     keyCoords.Add(new KeyValuePair<int, int>(r, c));
                                 }
@@ -780,13 +657,9 @@ namespace AzulAI
             //Send tiles to the floor line
             int penaltyIdx = p.FloorLine.Load;
 
-            if(m.hasFirstPlayerPenalty)
+            if(m.HasFirstPlayerPenalty)
             {
-                if(!p.FloorLine.IsFull)
-                {
-                    value -= p.FloorLine.PenaltyAtIndex(penaltyIdx);
-                    penaltyIdx++;
-                }
+                tiles++;
             }
             if(tiles > 0)
             {
@@ -800,92 +673,6 @@ namespace AzulAI
             }
 
             return value;
-        }
-
-        //Returns the amount of tiles of a given color found in specified factory
-        public int TilesGainedByMove(Move m)
-        {
-            int tileCount = 0;
-
-            if(m.factoryIdx == -1)
-            {
-                foreach(Tile t in centerOfTable)
-                {
-                    if (t?.Color == m.color)
-                        tileCount++;
-                }
-            }
-            else
-            {
-                for (int i = 0; i < 4; i++)
-                {
-                    if (factories[m.factoryIdx].tiles[i]?.Color == m.color)
-                        tileCount++;
-                }
-            }
-
-            return tileCount;
-        }
-
-        //Returns count of each tile color play has placed on their wall, in descending order
-        public List<KeyValuePair<TileColor, int>> PlacedTilesByColor(Player p)
-        {
-            List<KeyValuePair<TileColor, int>> colorCounts = new List<KeyValuePair<TileColor,int>>();
-
-            int blackCount = 0;
-            int blueCount = 0;
-            int redCount = 0;
-            int whiteCount = 0;
-            int yellowCount = 0;
-
-            for(int row = 0; row < 5; row++)
-            {
-                for(int col = 0; col < 5; col++)
-                {
-                    if(p.Wall[row, col] != null)
-                    {
-                        switch(p.Wall[row, col].Color)
-                        {
-                            case TileColor.Black:
-                                {
-                                    blackCount++;
-                                    break;
-                                }
-                            case TileColor.Blue:
-                                {
-                                    blueCount++;
-                                    break;
-                                }
-                            case TileColor.Red:
-                                {
-                                    redCount++;
-                                    break;
-                                }
-                            case TileColor.White:
-                                {
-                                    whiteCount++;
-                                    break;
-                                }
-                            case TileColor.Yellow:
-                                {
-                                    yellowCount++;
-                                    break;
-                                }
-                        }
-                    }
-                }
-            }
-
-            colorCounts.Add(new KeyValuePair<TileColor, int>(TileColor.Black, blackCount));
-            colorCounts.Add(new KeyValuePair<TileColor, int>(TileColor.Blue, blueCount));
-            colorCounts.Add(new KeyValuePair<TileColor, int>(TileColor.Red, redCount));
-            colorCounts.Add(new KeyValuePair<TileColor, int>(TileColor.White, whiteCount));
-            colorCounts.Add(new KeyValuePair<TileColor, int>(TileColor.Yellow, yellowCount));
-
-            colorCounts.Sort((x, y) => x.Value.CompareTo(y.Value));
-            colorCounts.Reverse();
-
-            return colorCounts;
         }
 
         //Returns whether or not the last round condition has been met

@@ -14,7 +14,7 @@ namespace AzulAI
             //Try to fill in the top row as quickly as possible
             foreach(Move m in availibleMoves)
             {
-                if (m.rowIdx == 0)
+                if (m.RowIdx == 0)
                     return m;
             }
             //Failing that, favor getting more tiles onto the board
@@ -24,7 +24,7 @@ namespace AzulAI
                 {
                     foreach(Move m in availibleMoves)
                     {
-                        if(m.color == PatternLines[y].Color)
+                        if(m.Color == PatternLines[y].Color)
                         {
                             return m;
                         }

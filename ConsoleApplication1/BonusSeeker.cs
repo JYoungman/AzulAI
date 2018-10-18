@@ -11,7 +11,7 @@ namespace AzulAI
         public override Move PerformMove(List<Move> availibleMoves)
         {
             //First priority: Color sets
-            List<KeyValuePair<TileColor, int>> placedTiles = gameManager.PlacedTilesByColor(this);
+            List<KeyValuePair<TileColor, int>> placedTiles = Wall.PlacedTilesByColor();
 
             //We aren't worried about colors we have already filled or have none of
             IEnumerable <KeyValuePair<TileColor, int>> comboColors = placedTiles.Where(x => x.Value != 0);
@@ -21,7 +21,7 @@ namespace AzulAI
             {
                 foreach (KeyValuePair<TileColor, int> kvp in comboColors)
                 {
-                    List<Move> comboMoves = availibleMoves.Where(x => x.color == kvp.Key).ToList<Move>();
+                    List<Move> comboMoves = availibleMoves.Where(x => x.Color == kvp.Key).ToList<Move>();
                     if (comboMoves.Count > 0)
                     {
                         comboMoves.Sort((a, b) => gameManager.ExpectedMoveValue(a, this).CompareTo(gameManager.ExpectedMoveValue(b, this)));
@@ -66,7 +66,7 @@ namespace AzulAI
                     {
                         foreach(Move m in availibleMoves)
                         {
-                            if (m.color == desiredLocation.Key && m.rowIdx == desiredLocation.Value)
+                            if (m.Color == desiredLocation.Key && m.RowIdx == desiredLocation.Value)
                                 columnMoves.Add(m);
                         }
                     }
@@ -111,7 +111,7 @@ namespace AzulAI
                     {
                         foreach(Move m in availibleMoves)
                         {
-                            if (m.rowIdx == kvp.Key)
+                            if (m.RowIdx == kvp.Key)
                                 rowMoves.Add(m);
                         }
                     }

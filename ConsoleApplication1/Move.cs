@@ -8,17 +8,19 @@ namespace AzulAI
 {
     public class Move
     {
-        public int factoryIdx { get; private set; }     //Value of -1 indicates tile pool
-        public int rowIdx { get; private set; }         //Value of -1 indicates floor line
-        public TileColor color { get; private set; }
-        public bool hasFirstPlayerPenalty { get; private set; }    //Value of true indicates the first player tile selected
+        public int FactoryIdx { get; }     //Value of -1 indicates tile pool
+        public int RowIdx { get; }         //Value of -1 indicates floor line
+        public TileColor Color { get; }
+        public int Count { get; } // Count of tiles
+        public bool HasFirstPlayerPenalty { get; }    //Value of true indicates this is the first move to pull from the center this round
 
-        public Move(int factoryIndex, int targetRow, TileColor colorToTake, bool hasFirstPlayerPenalty)
+        public Move(int factoryIndex, int targetRow, TileColor colorToTake, int count, bool hasFirstPlayerPenalty)
         {
-            factoryIdx = factoryIndex;
-            rowIdx = targetRow;
-            color = colorToTake;
-            this.hasFirstPlayerPenalty = hasFirstPlayerPenalty;
+            FactoryIdx = factoryIndex;
+            RowIdx = targetRow;
+            Color = colorToTake;
+            Count = count;
+            HasFirstPlayerPenalty = hasFirstPlayerPenalty;
         }
     }
 }

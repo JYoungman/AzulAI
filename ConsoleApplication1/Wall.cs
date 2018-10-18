@@ -235,5 +235,66 @@ namespace AzulAI
 
             return combo;
         }
+
+        //Returns count of each tile color play has placed on their wall, in descending order
+        public List<KeyValuePair<TileColor, int>> PlacedTilesByColor()
+        {
+            List<KeyValuePair<TileColor, int>> colorCounts = new List<KeyValuePair<TileColor, int>>();
+
+            int blackCount = 0;
+            int blueCount = 0;
+            int redCount = 0;
+            int whiteCount = 0;
+            int yellowCount = 0;
+
+            for (int row = 0; row < 5; row++)
+            {
+                for (int col = 0; col < 5; col++)
+                {
+                    if (Tiles[row, col] != null)
+                    {
+                        switch (Tiles[row, col].Color)
+                        {
+                            case TileColor.Black:
+                                {
+                                    blackCount++;
+                                    break;
+                                }
+                            case TileColor.Blue:
+                                {
+                                    blueCount++;
+                                    break;
+                                }
+                            case TileColor.Red:
+                                {
+                                    redCount++;
+                                    break;
+                                }
+                            case TileColor.White:
+                                {
+                                    whiteCount++;
+                                    break;
+                                }
+                            case TileColor.Yellow:
+                                {
+                                    yellowCount++;
+                                    break;
+                                }
+                        }
+                    }
+                }
+            }
+
+            colorCounts.Add(new KeyValuePair<TileColor, int>(TileColor.Black, blackCount));
+            colorCounts.Add(new KeyValuePair<TileColor, int>(TileColor.Blue, blueCount));
+            colorCounts.Add(new KeyValuePair<TileColor, int>(TileColor.Red, redCount));
+            colorCounts.Add(new KeyValuePair<TileColor, int>(TileColor.White, whiteCount));
+            colorCounts.Add(new KeyValuePair<TileColor, int>(TileColor.Yellow, yellowCount));
+
+            colorCounts.Sort((x, y) => x.Value.CompareTo(y.Value));
+            colorCounts.Reverse();
+
+            return colorCounts;
+        }
     }
 }

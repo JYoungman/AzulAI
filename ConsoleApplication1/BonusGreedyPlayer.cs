@@ -18,7 +18,7 @@ namespace AzulAI
             scoredMoves = scoredMoves.Where(x => x.Value == maxVal).ToList<KeyValuePair<Move, int>>();
 
             //Prefer moves that bring us closer to finishing color combos
-            List<KeyValuePair<TileColor, int>> placedTiles = gameManager.PlacedTilesByColor(this);
+            List<KeyValuePair<TileColor, int>> placedTiles = Wall.PlacedTilesByColor();
 
             //Remove empty and full color combos
             placedTiles = placedTiles.Where(x => x.Value != 0).ToList<KeyValuePair<TileColor, int>>();
@@ -37,7 +37,7 @@ namespace AzulAI
                 {
                     foreach(KeyValuePair<Move, int> kvp in scoredMoves)
                     {
-                        if (placedTiles[idx].Key == kvp.Key.color)
+                        if (placedTiles[idx].Key == kvp.Key.Color)
                             return kvp.Key;
                     }
                 }
@@ -68,8 +68,8 @@ namespace AzulAI
 
                 for(int idx = 0; idx < columnCompletion.Count; idx++)
                 {
-                    var columnMoves = scoredMoves.Where(x => x.Key.rowIdx >= 0);
-                    columnMoves = columnMoves.Where(x => Wall.ColumnOfTileColor(x.Key.rowIdx, x.Key.color) == columnCompletion[idx].Key);
+                    var columnMoves = scoredMoves.Where(x => x.Key.RowIdx >= 0);
+                    columnMoves = columnMoves.Where(x => Wall.ColumnOfTileColor(x.Key.RowIdx, x.Key.Color) == columnCompletion[idx].Key);
                     if (columnMoves.Count() != 0)
                         return columnMoves.First().Key;
                 }
@@ -102,7 +102,7 @@ namespace AzulAI
 
                 for (int idx = 0; idx < rowCompletion.Count; idx++)
                 {
-                    var rowMoves = scoredMoves.Where(x => x.Key.rowIdx == rowCompletion[idx].Key);
+                    var rowMoves = scoredMoves.Where(x => x.Key.RowIdx == rowCompletion[idx].Key);
                     if (rowMoves.Count() != 0)
                         return rowMoves.First().Key;
                 }
