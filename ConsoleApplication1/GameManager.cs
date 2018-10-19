@@ -98,7 +98,7 @@ namespace AzulAI
                 }
             }
 
-            var firstPlayerTile = box.Where(tile => tile.Color == TileColor.FirstPlayer).Single();
+            Tile firstPlayerTile = box.Where(tile => tile.Color == TileColor.FirstPlayer).Single();
             box.Remove(firstPlayerTile);
             centerOfTable.Add(firstPlayerTile);
 

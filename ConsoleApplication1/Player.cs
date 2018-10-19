@@ -10,7 +10,7 @@ namespace AzulAI
         public int score = 0;
         public int penaltyAccruedThisRound = 0;
         public int totalEarnedPenalties = 0;
-        public int totalAppliedPenalties = 0; // Possibly lower as your not allowed to go negative.
+        public int totalAppliedPenalties = 0; // Possibly lower as you're not allowed to go negative.
         public bool legalMovesAvailible = true;
 
         public Wall Wall { get; set; }

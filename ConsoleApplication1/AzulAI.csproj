@@ -45,6 +45,7 @@
     <Compile Include="BonusGreedyPlayer.cs" />
     <Compile Include="BonusSeeker.cs" />
     <Compile Include="CenterOfTable.cs" />
+    <Compile Include="ProgressiveGreedyPlayer.cs" />
     <Compile Include="TileCollection.cs" />
     <Compile Include="GameManager.cs" />
     <Compile Include="Move.cs" />

@@ -17,17 +17,18 @@ namespace AzulAI
             List<Player> AIs = new List<Player>();
             // AIs.Add(new PureRandom());
             //AIs.Add(new BGCplayer());
-            // AIs.Add(new QuickEndPlayer());
-            //AIs.Add(new SimpleGreedyPlayer());
+            //AIs.Add(new QuickEndPlayer());
+            AIs.Add(new SimpleGreedyPlayer());
             //AIs.Add(new SimpleGreedyPlayer());
             AIs.Add(new BonusGreedyPlayer());
             AIs.Add(new CentrestGreedyPlayer());
-            AIs.Add(new BonusGreedyPlayer());
-            AIs.Add(new CentrestGreedyPlayer());
+            //AIs.Add(new BonusGreedyPlayer());
+            //AIs.Add(new CentrestGreedyPlayer());
             //AIs.Add(new BonusSeeker());
             //AIs.Add(new SimpleGreedyPlayer());
+            AIs.Add(new ProgressiveGreedyPlayer());
 
-            var rounds = 10000;
+            var rounds = 1000;
             Console.WriteLine($"Beginning {rounds} round match with {AIs.Count} players.");
             for(int i = 0; i < AIs.Count; i++)
             {
