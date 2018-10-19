@@ -10,6 +10,10 @@ namespace AzulAI
     {
         static void Main(string[] args)
         {
+            /*
+            Console.WriteLine("Press any key to start."); // For profiling
+            Console.ReadKey();
+            */
             List<Player> AIs = new List<Player>();
             // AIs.Add(new PureRandom());
             //AIs.Add(new BGCplayer());
@@ -23,7 +27,7 @@ namespace AzulAI
             //AIs.Add(new BonusSeeker());
             //AIs.Add(new SimpleGreedyPlayer());
 
-            var rounds = 1000;
+            var rounds = 10000;
             Console.WriteLine($"Beginning {rounds} round match with {AIs.Count} players.");
             for(int i = 0; i < AIs.Count; i++)
             {

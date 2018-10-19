@@ -15,7 +15,7 @@ namespace AzulAI
         List<Tile> box = new List<Tile>();
         CenterOfTable centerOfTable = new CenterOfTable();
 
-        List<Factory> factories;
+        List<TileCollection> factories;
 
         bool lastRound = false;
         uint roundCount = 0;
@@ -51,11 +51,11 @@ namespace AzulAI
 
             //Generate Factories
             int factoryCount = players.Count * 2 + 1;
-            factories = new List<Factory>(factoryCount);
+            factories = new List<TileCollection>(factoryCount);
 
             for (int i = 0; i < factoryCount; i++ )
             {
-                factories.Add(new Factory());
+                factories.Add(new TileCollection());
             }
 
             //Provide all players with a link
@@ -92,11 +92,11 @@ namespace AzulAI
             //Reset tiles
             if (roundCount != 0)
             {
-                Debug.Assert(!centerOfTable.Any(), "There shouldn't be any tiles left.");
+                Debug.Assert(!centerOfTable.Availible, "There shouldn't be any tiles left.");
                 //Dump excess factory tiles into box
-                foreach(Factory f in factories)
+                foreach(TileCollection f in factories)
                 {
-                    Debug.Assert(!f.Tiles.Any(), "There shouldn't be any tiles left.");
+                    Debug.Assert(!f.Availible, "There shouldn't be any tiles left.");
                 }
             }
 
@@ -117,7 +117,7 @@ namespace AzulAI
             }
 
             //Reset factories
-            foreach (Factory f in factories)
+            foreach (TileCollection f in factories)
             {
                 for (int i = 0; i < 4; i++)
                 {
@@ -334,40 +334,40 @@ namespace AzulAI
             {
                 var factory = factories[move.FactoryIdx];
 
-                foreach (var tile in factory)
-                {
-                    //Assign requested tiles to the appropriate row on the player's board
-                    if (tile.Color == move.Color)
-                    {
-                        if (move.RowIdx >= 0)
-                        {
-                            var line = activePlayer.PatternLines[move.RowIdx];
+                var moveTiles = factory.Take(move.Color);
 
-                            if (!line.IsFull)
-                            {
-                                line.Add(tile);
-                            }
-                            //If there isn't room in the desired row, move remaining tiles to the floor line
-                            else
-                            {
-                                TileToFloorLine(tile, activePlayer);
-                            }
+                //Assign requested tiles to the appropriate row on the player's board
+                foreach (var tile in moveTiles)
+                {
+                    if (move.RowIdx >= 0)
+                    {
+                        var line = activePlayer.PatternLines[move.RowIdx];
+
+                        if (!line.IsFull)
+                        {
+                            line.Add(tile);
                         }
-                        //Negative row index in move indicates floor line as target row
+                        //If there isn't room in the desired row, move remaining tiles to the floor line
                         else
                         {
                             TileToFloorLine(tile, activePlayer);
                         }
                     }
-                    //Move remaining tiles into the center of the table
+                    //Negative row index in move indicates floor line as target row
                     else
                     {
-                        centerOfTable.Add(tile);
+                        TileToFloorLine(tile, activePlayer);
                     }
                 }
 
+                //Move remaining tiles into the center of the table
+                foreach (var tile in factory)
+                {
+                    centerOfTable.Add(tile);
+                }
+
                 //Empty factory
-                factory.Tiles.Clear();
+                factory.Clear();
             }
             //A negative factoryIdx value indicates player has chosen to pull from the center of the table
             else
@@ -375,8 +375,7 @@ namespace AzulAI
                 //Take the first player tile if present
                 if (move.HasFirstPlayerPenalty)
                 {
-                    var firstPlayerTile = centerOfTable.Take(TileColor.FirstPlayer).Single();
-                    TileToFloorLine(firstPlayerTile, activePlayer);
+                    TileToFloorLine(centerOfTable.TakeFirstPlayerTile(), activePlayer);
                     startingPlayer = activePlayer;
                 }
 
@@ -438,7 +437,7 @@ namespace AzulAI
         //Returns list of rows in which the player can legally place a tile of a given color
         List<int> LegalRowsForColor(TileColor c, Player p)
         {
-            List<int> rows = new List<int>();
+            List<int> rows = new List<int>(5);
             if (c == TileColor.FirstPlayer)
             {
                 return rows;
@@ -489,9 +488,9 @@ namespace AzulAI
             int knownTiles = 0;
 
             //Check factories
-            foreach(Factory f in factories)
+            foreach(TileCollection f in factories)
             {
-                knownTiles += f.Tiles.Count;
+                knownTiles += f.Count;
             }
 
             //Check bag

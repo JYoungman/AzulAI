@@ -1,43 +1,31 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 
 namespace AzulAI
 {
-    public class CenterOfTable : IEnumerable<Tile>
+    public class CenterOfTable : TileCollection
     {
-        public List<Tile> Tiles { get; } = new List<Tile>();
-        public int Count => Tiles.Count;
+        public bool HasFirstPlayerTile => FirstPlayerTile == null;
 
-        public bool HasFirstPlayerTile => Tiles.Any(tile => tile.Color == TileColor.FirstPlayer);
+        private Tile FirstPlayerTile { get; set; }
 
-        public void Add(Tile tile)
+        public Tile TakeFirstPlayerTile()
         {
-            Tiles.Add(tile);
+            var tile = FirstPlayerTile;
+            Debug.Assert(tile != null);
+            FirstPlayerTile = null;
+            return tile;
         }
 
-        public int CountOf(TileColor color)
+        public override void Add(Tile tile)
         {
-            return Tiles.Where(tile => tile.Color == color).Count();
+            if (tile.Color == TileColor.FirstPlayer)
+            {
+                FirstPlayerTile = tile;
+            }
+            else
+            {
+                base.Add(tile);
+            }
         }
-
-        public IEnumerable<Tile> Take(TileColor color)
-        {
-            var taken = Tiles.Where(tile => tile.Color == color).ToList();
-            Tiles.RemoveAll(tile => tile.Color == color);
-            return taken;
-        }
-
-        public IEnumerable<TileColor> GetColors()
-        {
-            return Tiles.Select(t => t.Color).Distinct();
-        }
-
-        public IEnumerator<Tile> GetEnumerator() => Tiles.GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => Tiles.GetEnumerator();
     }
 }
