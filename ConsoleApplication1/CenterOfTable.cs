@@ -4,7 +4,7 @@ namespace AzulAI
 {
     public class CenterOfTable : TileCollection
     {
-        public bool HasFirstPlayerTile => FirstPlayerTile == null;
+        public bool HasFirstPlayerTile => FirstPlayerTile != null;
 
         private Tile FirstPlayerTile { get; set; }
 

@@ -11,8 +11,8 @@ namespace AzulAI
         List<Player> players;
         Player startingPlayer;
 
-        List<Tile> bag = new List<Tile>();
-        List<Tile> box = new List<Tile>();
+        List<Tile> bag = new List<Tile>(100);
+        List<Tile> box = new List<Tile>(30);
         CenterOfTable centerOfTable = new CenterOfTable();
 
         List<TileCollection> factories;
@@ -21,7 +21,7 @@ namespace AzulAI
         uint roundCount = 0;
         bool movesAvailible = true;
 
-        public Random randNumGen;
+        public Random randNumGen = new Random();
 
         bool verbose = false;
 
@@ -43,8 +43,9 @@ namespace AzulAI
                 bag.Add(new Tile(TileColor.Yellow));
                 bag.Add(new Tile(TileColor.Black));
             }
+            MixBag();
 
-            centerOfTable.Add(new Tile(TileColor.FirstPlayer));
+            box.Add(new Tile(TileColor.FirstPlayer));
 
             players = playerList;
             startingPlayer = players[0];
@@ -64,9 +65,6 @@ namespace AzulAI
                 p.gameManager = this;
                 p.GameSetup();
             }
-
-            //Create random number generator
-            randNumGen = new Random();
         }
 
         //-----------------------------------------------------------------
@@ -100,30 +98,26 @@ namespace AzulAI
                 }
             }
 
-            if (box.Count != 0)
-            {
-                foreach (Tile t in box)
-                {
-                    if (t.Color != TileColor.FirstPlayer)
-                    {
-                        bag.Add(t);
-                    }
-                    else
-                    {
-                        centerOfTable.Add(t);
-                    }
-                }
-                box.Clear();
-            }
+            var firstPlayerTile = box.Where(tile => tile.Color == TileColor.FirstPlayer).Single();
+            box.Remove(firstPlayerTile);
+            centerOfTable.Add(firstPlayerTile);
 
             //Reset factories
             foreach (TileCollection f in factories)
             {
                 for (int i = 0; i < 4; i++)
                 {
+                    if (bag.Count == 0 && box.Count > 0)
+                    {
+                        bag.AddRange(box);
+                        box.Clear();
+                        MixBag();
+                    }
+
                     if (bag.Count > 0)
                     {
-                        int randIdx = randNumGen.Next(0, bag.Count);
+                        // Removing the last is most efficient.
+                        int randIdx = bag.Count - 1;                        
                         f.Add(bag[randIdx]);
                         bag.RemoveAt(randIdx);
                     }
@@ -270,6 +264,17 @@ namespace AzulAI
             roundCount++;
             
             return progressMade;
+        }
+
+        private void MixBag()
+        {
+            for (int i = 0; i < bag.Count; i++)
+            {
+                int j = randNumGen.Next(bag.Count);
+                var temp = bag[i];
+                bag[i] = bag[j];
+                bag[j] = temp;
+            }
         }
 
         //Returns a list of all of the moves that the player can legally perform this turn
