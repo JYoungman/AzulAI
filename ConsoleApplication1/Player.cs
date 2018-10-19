@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace AzulAI
 {
@@ -86,6 +87,42 @@ namespace AzulAI
             }
 
             return total;
+        }
+
+        //Returns list of rows in which the player can legally place a tile of a given color
+        public IEnumerable<int> LegalRowsForColor(TileColor c)
+        {
+            Debug.Assert(c != TileColor.FirstPlayer);
+
+            for (int row = 0; row < 5; row++)
+            {
+                bool canMatchInRow = true;
+
+                //Check wall to see if tile of color c is already placed on this row
+                if (PatternLines[row].IsEmpty)
+                {
+                    var col = Wall.ColumnOfTileColor(row, c);
+                    if (Wall[row, col] != null)
+                    {
+                        canMatchInRow = false;
+                    }
+                }
+                //Check if there is space remaining in pattern lines containing tiles of color c
+                else if (PatternLines[row].Color == c)
+                {
+                    canMatchInRow = !PatternLines[row].IsFull;
+                }
+                //Full rows or empty rows with appropriate wall space cannot recieve tiles of color c
+                else
+                {
+                    canMatchInRow = false;
+                }
+
+                if (canMatchInRow)
+                {
+                    yield return row;
+                }
+            }
         }
     }
 }

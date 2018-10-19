@@ -285,13 +285,11 @@ namespace AzulAI
                     //Look for legal places to place tiles of availible colors
                     foreach (TileColor tc in factories[f].GetColors())
                     {
-                        List<int> availibleRows = LegalRowsForColor(tc, activePlayer);
-
                         //Generate moves for moving directly to floor line
-                        int tileCount = factories[f].CountOf(tc); // TODO add this count to the move
+                        int tileCount = factories[f].CountOf(tc);
 
                         //Generate move data
-                        foreach (int row in availibleRows)
+                        foreach (int row in activePlayer.LegalRowsForColor(tc))
                         {
                             legalMoves.Add(new Move(f, row, tc, tileCount, false));
                         }
@@ -307,21 +305,18 @@ namespace AzulAI
             //Look for legal places to place tiles of availible colors
             foreach(TileColor tc in centerOfTable.GetColors())
             {
-                List<int> availibleRows = LegalRowsForColor(tc, activePlayer);
+                Debug.Assert(tc != TileColor.FirstPlayer); // Excluded by GetColors
 
                 int tileCount = centerOfTable.CountOf(tc);
 
                 //Generate move data
-                foreach (int row in availibleRows)
+                foreach (int row in activePlayer.LegalRowsForColor(tc))
                 {
                     legalMoves.Add(new Move(-1, row, tc, tileCount, hasFirstPlayerPenalty));
                 }
 
                 //Generate moves for moving directly to floor line
-                if (tc != TileColor.FirstPlayer)
-                {
-                    legalMoves.Add(new Move(-1, -1, tc, tileCount, hasFirstPlayerPenalty));
-                }
+                legalMoves.Add(new Move(-1, -1, tc, tileCount, hasFirstPlayerPenalty));
             }
 
             return legalMoves;
@@ -432,48 +427,6 @@ namespace AzulAI
             }
 
             return false;
-        }
-
-        //Returns list of rows in which the player can legally place a tile of a given color
-        List<int> LegalRowsForColor(TileColor c, Player p)
-        {
-            List<int> rows = new List<int>(5);
-            if (c == TileColor.FirstPlayer)
-            {
-                return rows;
-            }
-
-            for (int row = 0; row < 5; row++)
-            {
-                bool canMatchInRow = true;
-
-                //Check wall to see if tile of color c is already placed on this row
-                if(p.PatternLines[row].IsEmpty)
-                {
-                    var col = p.Wall.ColumnOfTileColor(row, c);
-                    if(p.Wall[row, col] != null)
-                    {
-                        canMatchInRow = false;
-                    }
-                }
-                //Check if there is space remaining in pattern lines containing tiles of color c
-                else if(p.PatternLines[row].Color == c)
-                {
-                    canMatchInRow = !p.PatternLines[row].IsFull;
-                }
-                //Full rows or empty rows with appropriate wall space cannot recieve tiles of color c
-                else
-                {
-                    canMatchInRow = false;
-                }
-
-                if(canMatchInRow)
-                {
-                    rows.Add(row);
-                }
-            }
-            
-            return rows;
         }
 
         void DisplayText(string str)
@@ -616,25 +569,12 @@ namespace AzulAI
                     }
 
                     //Determine if set bonus would be gained
-                    bool setBonus = m.Color != TileColor.FirstPlayer;
-                    var keyCoords = new List<KeyValuePair<int, int>>(5);
-                    for(int r = 0; r < 5; r++)
-                    {
-                        for(int c = 0; c < 5; c++)
-                        {
-                            if(p.Wall.TileKey[r, c] == m.Color)
-                            {
-                                if(r != m.RowIdx && c != placedColumn)
-                                {
-                                    keyCoords.Add(new KeyValuePair<int, int>(r, c));
-                                }
-                            }
-                        }
-                    }
-
+                    bool setBonus = true;
+                    var keyCoords = p.Wall.GetSet(m.Color);
                     foreach(KeyValuePair<int, int> coords in keyCoords)
                     {
-                        if(p.Wall[coords.Key, coords.Value] == null
+                        if (coords.Key != m.RowIdx && coords.Value != placedColumn
+                            && p.Wall[coords.Key, coords.Value] == null
                             && !p.PatternLines[coords.Key].IsFull)
                         {
                             setBonus = false;

@@ -11,6 +11,11 @@ namespace AzulAI
         public Tile[,] Tiles { get; } = new Tile[5, 5];
 
         public TileColor[,] TileKey { get; } = new TileColor[5, 5];
+        private List<KeyValuePair<int, int>> BlueSet { get; }
+        private List<KeyValuePair<int, int>> YellowSet { get; }
+        private List<KeyValuePair<int, int>> RedSet { get; }
+        private List<KeyValuePair<int, int>> BlackSet { get; }
+        private List<KeyValuePair<int, int>> WhiteSet { get; }
 
         public Wall()
         {            
@@ -43,6 +48,51 @@ namespace AzulAI
             TileKey[4, 1] = TileColor.Red;
             TileKey[4, 2] = TileColor.Black;
             TileKey[4, 3] = TileColor.White;
+
+            BlueSet = new List<KeyValuePair<int, int>>()
+            {
+                new KeyValuePair<int, int>(0, 0),
+                new KeyValuePair<int, int>(1, 1),
+                new KeyValuePair<int, int>(2, 2),
+                new KeyValuePair<int, int>(3, 3),
+                new KeyValuePair<int, int>(4, 4),
+            };
+
+            YellowSet = new List<KeyValuePair<int, int>>()
+            {
+                new KeyValuePair<int, int>(0, 1),
+                new KeyValuePair<int, int>(1, 2),
+                new KeyValuePair<int, int>(2, 3),
+                new KeyValuePair<int, int>(3, 4),
+                new KeyValuePair<int, int>(4, 0),
+            };
+
+            RedSet = new List<KeyValuePair<int, int>>()
+            {
+                new KeyValuePair<int, int>(0, 2),
+                new KeyValuePair<int, int>(1, 3),
+                new KeyValuePair<int, int>(2, 4),
+                new KeyValuePair<int, int>(3, 0),
+                new KeyValuePair<int, int>(4, 1),
+            };
+
+            BlackSet = new List<KeyValuePair<int, int>>()
+            {
+                new KeyValuePair<int, int>(0, 3),
+                new KeyValuePair<int, int>(1, 4),
+                new KeyValuePair<int, int>(2, 0),
+                new KeyValuePair<int, int>(3, 1),
+                new KeyValuePair<int, int>(4, 2),
+            };
+
+            WhiteSet = new List<KeyValuePair<int, int>>()
+            {
+                new KeyValuePair<int, int>(0, 4),
+                new KeyValuePair<int, int>(1, 0),
+                new KeyValuePair<int, int>(2, 1),
+                new KeyValuePair<int, int>(3, 2),
+                new KeyValuePair<int, int>(4, 3),
+            };
         }
 
         public Tile this[int row, int col]
@@ -51,24 +101,30 @@ namespace AzulAI
             set => Tiles[row, col] = value;
         }
 
-        //Returns the color of tile that gets placed at the provided coordinates
-        public TileColor TileColorAtLocation(int row, int col)
+        public List<KeyValuePair<int, int>> GetSet(TileColor color)
         {
-            return TileKey[row, col];
+            switch (color)
+            {
+                case TileColor.Blue:
+                    return BlueSet;
+                case TileColor.Red:
+                    return RedSet;
+                case TileColor.Yellow:
+                    return YellowSet;
+                case TileColor.White:
+                    return WhiteSet;
+                case TileColor.Black:
+                    return BlackSet;
+                default:
+                    throw new NotImplementedException(color.ToString());
+            }
         }
 
+        //Returns the color of tile that gets placed at the provided coordinates
+        public TileColor TileColorAtLocation(int row, int col) => TileKey[row, col];
+
         //Returns the column the color belongs in for the given row
-        public int ColumnOfTileColor(int row, TileColor color)
-        {
-            for (int col = 0; col < 5; col++)
-            {
-                if (TileKey[row, col] == color)
-                {
-                    return col;
-                }
-            }
-            throw new InvalidOperationException(color.ToString());
-        }
+        public int ColumnOfTileColor(int row, TileColor color) => GetSet(color)[row].Value;
 
         public int FullColumnCount()
         {
