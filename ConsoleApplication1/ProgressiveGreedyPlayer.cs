@@ -25,14 +25,6 @@ namespace AzulAI
             return tileEfficientMoves[tileEfficientMoves.Count - 1].Key;
         }
 
-        float TileEfficiency(Move m)
-        {
-            if(m.RowIdx >= 0)
-                return m.Count / PatternLines[m.RowIdx].Availability;
-
-            return -1.0f;
-        }
-
         //Courtesy function for displaying information about match and results.
         public override string DisplayName()
         {

@@ -89,6 +89,15 @@ namespace AzulAI
             return total;
         }
 
+        //Returns the percentage of open Pattern Line slots filled by a move
+        internal float TileEfficiency(Move m)
+        {
+            if (m.RowIdx >= 0)
+                return m.Count / PatternLines[m.RowIdx].Availability;
+
+            return -1.0f;
+        }
+
         //Returns list of rows in which the player can legally place a tile of a given color
         public IEnumerable<int> LegalRowsForColor(TileColor c)
         {
